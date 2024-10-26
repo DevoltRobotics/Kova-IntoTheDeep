@@ -32,8 +32,11 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.ServoImplEx;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
@@ -53,13 +56,17 @@ import com.qualcomm.robotcore.util.Range;
 
 @TeleOp(name="Kova", group="Linear OpMode")
 public class kovateleop extends LinearOpMode {
-    public void runOpMode() throws InterruptedException {
+    public void runOpMode() {
         // Declare our motors
         // Make sure your ID's match your configuration
         DcMotor frontLeftMotor = hardwareMap.dcMotor.get("FL");
         DcMotor backLeftMotor = hardwareMap.dcMotor.get("BL");
         DcMotor frontRightMotor = hardwareMap.dcMotor.get("FR");
         DcMotor backRightMotor = hardwareMap.dcMotor.get("BR");
+        DcMotor slidesMotor = hardwareMap.dcMotor.get("MR");
+
+        CRServo servoGarra = hardwareMap.crservo.get("CG");
+        Servo servoWrist = hardwareMap.servo.get("CM");
 
         // Reverse the right side motors. This may be wrong for your setup.
         // If your robot moves backwards when commanded to go forwards,
@@ -95,10 +102,25 @@ public class kovateleop extends LinearOpMode {
             backLeftMotor.setPower(backLeftPower);
             frontRightMotor.setPower(frontRightPower);
             backRightMotor.setPower(backRightPower);
+
+            slidesMotor.setPower(gamepad2.left_stick_y - 0.05);
+
+            if(gamepad2.a) {
+                servoGarra.setPower(-1);
+            } else if(gamepad2.b){
+                servoGarra.setPower(1);
+            } else {
+                servoGarra.setPower(-0.08);
+            }
+
+            if(gamepad2.dpad_up) {
+                servoWrist.setPosition(0);
+            } else if(gamepad2.dpad_down) {
+                servoWrist.setPosition(0.9);
+            }
+
+            servoWrist.setPosition(servoWrist.getPosition() - (gamepad2.right_stick_y * 0.05));
         }
     }
 
 }
-
-
-
