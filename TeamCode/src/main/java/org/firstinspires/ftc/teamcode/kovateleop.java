@@ -29,6 +29,7 @@
 
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.hardware.rev.RevTouchSensor;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -64,9 +65,12 @@ public class kovateleop extends LinearOpMode {
         DcMotor frontRightMotor = hardwareMap.dcMotor.get("FR");
         DcMotor backRightMotor = hardwareMap.dcMotor.get("BR");
         DcMotor slidesMotor = hardwareMap.dcMotor.get("MR");
+        DcMotor centralMotor = hardwareMap.dcMotor.get("C");
 
         CRServo servoGarra = hardwareMap.crservo.get("CG");
         Servo servoWrist = hardwareMap.servo.get("CM");
+
+        RevTouchSensor touchSensor = hardwareMap.get(RevTouchSensor.class,"TS");
 
         // Reverse the right side motors. This may be wrong for your setup.
         // If your robot moves backwards when commanded to go forwards,
@@ -104,6 +108,11 @@ public class kovateleop extends LinearOpMode {
             backRightMotor.setPower(backRightPower);
 
             slidesMotor.setPower(gamepad2.left_stick_y - 0.05);
+            if(touchSensor.isPressed()){
+                centralMotor.setPower(0);
+            } else {
+                centralMotor.setPower(gamepad2.right_stick_y);
+            }
 
             if(gamepad2.a) {
                 servoGarra.setPower(-1);
@@ -119,7 +128,9 @@ public class kovateleop extends LinearOpMode {
                 servoWrist.setPosition(0.9);
             }
 
-            servoWrist.setPosition(servoWrist.getPosition() - (gamepad2.right_stick_y * 0.05));
+            servoWrist.setPosition(servoWrist.getPosition() - (gamepad2.right_trigger - gamepad2.left_trigger * 0.05));
+
+            telemetry.addData("TS",touchSensor.isPressed());
         }
     }
 
