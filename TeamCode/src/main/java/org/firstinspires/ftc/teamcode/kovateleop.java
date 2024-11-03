@@ -67,7 +67,7 @@ public class kovateleop extends LinearOpMode {
         DcMotor slidesMotor = hardwareMap.dcMotor.get("MR");
         DcMotor centralMotor = hardwareMap.dcMotor.get("C");
 
-        CRServo servoGarra = hardwareMap.crservo.get("CG");
+        Servo servoGarra = hardwareMap.servo.get("CG");
         Servo servoWrist = hardwareMap.servo.get("CM");
 
         RevTouchSensor touchSensor = hardwareMap.get(RevTouchSensor.class,"TS");
@@ -115,12 +115,11 @@ public class kovateleop extends LinearOpMode {
             }
 
             if(gamepad2.a) {
-                servoGarra.setPower(-1);
+                servoGarra.setPosition(0);
             } else if(gamepad2.b){
-                servoGarra.setPower(1);
-            } else {
-                servoGarra.setPower(-0.08);
+                servoGarra.setPosition(1);
             }
+
 
             if(gamepad2.dpad_up) {
                 servoWrist.setPosition(0);
