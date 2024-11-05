@@ -130,6 +130,9 @@ public class kovateleop extends LinearOpMode {
             servoWrist.setPosition(servoWrist.getPosition() - (gamepad2.right_trigger - gamepad2.left_trigger * 0.05));
 
             telemetry.addData("TS",touchSensor.isPressed());
+            telemetry.addData("encoderrelies",slidesMotor.getCurrentPosition());
+            telemetry.addData("encodercentral",centralMotor.getCurrentPosition());
+            telemetry.update();
         }
     }
 
