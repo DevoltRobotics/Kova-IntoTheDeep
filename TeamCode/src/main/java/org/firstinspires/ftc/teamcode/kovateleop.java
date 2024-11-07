@@ -84,6 +84,9 @@ public class kovateleop extends LinearOpMode {
         backRightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         backLeftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
+        slidesMotor.setTargetPosition(0);
+        slidesMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
         waitForStart();
 
         if (isStopRequested()) return;
@@ -107,7 +110,9 @@ public class kovateleop extends LinearOpMode {
             frontRightMotor.setPower(frontRightPower);
             backRightMotor.setPower(backRightPower);
 
-            slidesMotor.setPower(gamepad2.left_stick_y - 0.05);
+            slidesMotor.setTargetPosition(slidesMotor.getCurrentPosition()+(int) (gamepad2.left_stick_y *537));
+            slidesMotor.setPower(1);
+
             if(touchSensor.isPressed()){
                 centralMotor.setPower(0);
             } else {
