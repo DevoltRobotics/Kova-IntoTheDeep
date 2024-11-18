@@ -90,6 +90,7 @@ public class kovateleop extends LinearOpMode {
         waitForStart();
 
         if (isStopRequested()) return;
+        
 
         while (opModeIsActive()) {
             double y = -gamepad1.left_stick_y; // Remember, Y stick value is reversed
@@ -110,21 +111,20 @@ public class kovateleop extends LinearOpMode {
             frontRightMotor.setPower(frontRightPower);
             backRightMotor.setPower(backRightPower);
 
-            slidesMotor.setTargetPosition(slidesMotor.getCurrentPosition()+(int) (gamepad2.left_stick_y *537));
+            slidesMotor.setTargetPosition(slidesMotor.getCurrentPosition()-(int) (gamepad2.left_stick_y *537));
             slidesMotor.setPower(1);
 
             if(touchSensor.isPressed()){
                 centralMotor.setPower(0);
             } else {
-                centralMotor.setPower(gamepad2.right_stick_y);
+                centralMotor.setPower(-gamepad2.right_stick_y);
             }
 
-            if(gamepad2.a) {
-                servoGarra.setPosition(0);
-            } else if(gamepad2.b){
+            if(gamepad2.b) {
+                servoGarra.setPosition(0.2);
+            } else if(gamepad2.a){
                 servoGarra.setPosition(1);
             }
-
 
             if(gamepad2.dpad_up) {
                 servoWrist.setPosition(0);
@@ -132,7 +132,7 @@ public class kovateleop extends LinearOpMode {
                 servoWrist.setPosition(0.9);
             }
 
-            servoWrist.setPosition(servoWrist.getPosition() - (gamepad2.right_trigger - gamepad2.left_trigger * 0.05));
+            servoWrist.setPosition(servoWrist.getPosition() - ((gamepad2.right_trigger - gamepad2.left_trigger) * 0.05));
 
             telemetry.addData("TS",touchSensor.isPressed());
             telemetry.addData("encoderrelies",slidesMotor.getCurrentPosition());
