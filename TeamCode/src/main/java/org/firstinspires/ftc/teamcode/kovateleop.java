@@ -41,22 +41,15 @@ import com.qualcomm.robotcore.hardware.ServoImplEx;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
-
-/*
- * This file contains an minimal example of a Linear "OpMode". An OpMode is a 'program' that runs in either
- * the autonomous or the teleop period of an FTC match. The names of OpModes appear on the menu
- * of the FTC Driver Station. When a selection is made from the menu, the corresponding OpMode
- * class is instantiated on the Robot Controller and executed.
- *
- * This particular OpMode just executes a basic Tank Drive Teleop for a two wheeled robot
- * It includes all the skeletal structure that all linear OpModes contain.
- *
- * Use Android Studio to Copy this Class, and Paste it into your team's code folder with a new name.
- * Remove or comment out the @Disabled line to add this OpMode to the Driver Station OpMode list
- */
-
 @TeleOp(name="Kova", group="Linear OpMode")
 public class kovateleop extends LinearOpMode {
+
+    public static final double rielesP = 0.003;
+    public static final double rielesF = 0.09;
+
+    int rielesTargetPos = 0;
+    int centroTargetPos = 0;
+
     public void runOpMode() {
         // Declare our motors
         // Make sure your ID's match your configuration
@@ -84,13 +77,17 @@ public class kovateleop extends LinearOpMode {
         backRightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         backLeftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-        slidesMotor.setTargetPosition(0);
-        slidesMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-
         waitForStart();
 
         if (isStopRequested()) return;
-        
+
+        slidesMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        slidesMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        centralMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+        centralMotor.setTargetPosition(0);
+        centralMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
         while (opModeIsActive()) {
             double y = -gamepad1.left_stick_y; // Remember, Y stick value is reversed
@@ -106,18 +103,26 @@ public class kovateleop extends LinearOpMode {
             double frontRightPower = (y - x - rx) / denominator;
             double backRightPower = (y + x - rx) / denominator;
 
-            frontLeftMotor.setPower(frontLeftPower);
-            backLeftMotor.setPower(backLeftPower);
-            frontRightMotor.setPower(frontRightPower);
-            backRightMotor.setPower(backRightPower);
+            double turbo = 1;
 
-            slidesMotor.setTargetPosition(slidesMotor.getCurrentPosition()-(int) (gamepad2.left_stick_y *537));
-            slidesMotor.setPower(1);
+            if(gamepad1.left_trigger > 0.1) {
+                turbo -= (gamepad1.left_trigger * 0.8);
+            } else {
+                turbo -= (gamepad1.right_trigger * 0.8);
+            }
+
+            frontLeftMotor.setPower(frontLeftPower * turbo);
+            backLeftMotor.setPower(backLeftPower * turbo);
+            frontRightMotor.setPower(frontRightPower * turbo);
+            backRightMotor.setPower(backRightPower * turbo);
+
+            rielesTargetPos += (int) (gamepad2.left_stick_y * 537);
 
             if(touchSensor.isPressed()){
                 centralMotor.setPower(0);
             } else {
-                centralMotor.setPower(-gamepad2.right_stick_y);
+                centralMotor.setPower(1);
+                centroTargetPos += (int) (gamepad2.right_stick_y * 200);
             }
 
             if(gamepad2.b) {
@@ -126,13 +131,32 @@ public class kovateleop extends LinearOpMode {
                 servoGarra.setPosition(1);
             }
 
-            if(gamepad2.dpad_up) {
+            if(gamepad2.dpad_up) { // automatizacion movimientos de muñeca
                 servoWrist.setPosition(0);
+            } else if(gamepad2.dpad_right) {
+                servoWrist.setPosition(0.7);
             } else if(gamepad2.dpad_down) {
-                servoWrist.setPosition(0.9);
+                servoWrist.setPosition(1);
+            } else if(gamepad2.dpad_left) {
+                centroTargetPos = 100;
+            }
+
+            if(gamepad2.x) { // automatizacion bajar rieles y guardar garra
+                servoWrist.setPosition(0);
+                rielesTargetPos = 0;
+            } else if(gamepad2.y) {
+                servoWrist.setPosition(0.7);
+                rielesTargetPos = 0;
             }
 
             servoWrist.setPosition(servoWrist.getPosition() - ((gamepad2.right_trigger - gamepad2.left_trigger) * 0.05));
+
+            double rielesError = rielesTargetPos - slidesMotor.getCurrentPosition();
+            double rielesProportional = rielesError * rielesP;
+
+            slidesMotor.setPower(rielesProportional + rielesF);
+
+            centralMotor.setTargetPosition(centroTargetPos);
 
             telemetry.addData("TS",touchSensor.isPressed());
             telemetry.addData("encoderrelies",slidesMotor.getCurrentPosition());
