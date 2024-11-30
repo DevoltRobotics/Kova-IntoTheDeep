@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.autonomokova;
 
 import com.acmerobotics.roadrunner.Pose2d;
+import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -24,8 +25,14 @@ public class autonomokova extends LinearOpMode {
         waitForStart();
         Actions.runBlocking(
                 MD.actionBuilder(new Pose2d(0, 0, 0))
-                        .lineToX(64)
-                        .lineToX(0)
+                        .lineToX(10) // moviemiento para enfrente
+                        .strafeTo(new Vector2d(50, -20)) //diagonal
+                        .turn(Math.toRadians(-90)) //vuelta
+                        .lineToY(-24) //enfrente poquito
+                        .strafeTo(new Vector2d(0, -20)) //lleva a human
+
+                        .lineToX(50)
+                        .lineToY(-26) //esta parte  no funciona
                         .build());
     }
 }
