@@ -38,6 +38,9 @@ public class kovateleop extends LinearOpMode {
 
         RevTouchSensor touchSensor = hardwareMap.get(RevTouchSensor.class,"TS");
 
+
+
+
         // Reverse the right side motors. This may be wrong for your setup.
         // If your robot moves backwards when commanded to go forwards,
         // reverse the left side instead.
@@ -63,6 +66,7 @@ public class kovateleop extends LinearOpMode {
         centralMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
         while (opModeIsActive()) {
+
             double y = -gamepad1.left_stick_y; // Remember, Y stick value is reversed
             double x = -gamepad1.left_stick_x * 1.1; // Counteract imperfect strafing
             double rx = -gamepad1.right_stick_x;
@@ -139,5 +143,4 @@ public class kovateleop extends LinearOpMode {
             telemetry.update();
         }
     }
-
 }

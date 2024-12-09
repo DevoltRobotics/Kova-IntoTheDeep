@@ -12,14 +12,14 @@ import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.MecanumDrive;
+
 @Config
-@Autonomous(name = "Canasta 🫡", group = "Autonomous")
-public class AutonomoKovaCanasta extends LinearOpMode {
+@Autonomous(name = "Autonomo Canasta🔥", group = "Autonomous")
+public class AutonomoKovaCanastaPt2 extends LinearOpMode {
 
 
     @Override
@@ -29,36 +29,66 @@ public class AutonomoKovaCanasta extends LinearOpMode {
         Servo servoWrist = hardwareMap.servo.get("CM");
         DcMotor slidesMotor = hardwareMap.dcMotor.get("MR");
         DcMotor centralMotor = hardwareMap.dcMotor.get("C");
+
+        slidesMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        centralMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         //TODO Este autonomo es del la alianza roja, checar alianza azul
         waitForStart();
         Actions.runBlocking(
                 MD.actionBuilder(new Pose2d(0, 0, 0))
-//                        .stopAndAdd(new ServoA(servoWrist, 0.7))
-//                        .stopAndAdd(new ServoA(servoGarra, 1))
-//                        .strafeTo(new Vector2d(14, 19))
-//                        .turn(Math.toRadians(-45)) //Aqui acaba Pre-Cargado
-                        .strafeTo(new Vector2d(24,17 ))
+                        .stopAndAdd(new ServoA(servoGarra, 1))
+                        .stopAndAdd(new motorA(slidesMotor, 1))
+                        .waitSeconds(0.5)
+                        .stopAndAdd(new motorA(slidesMotor,  0))
+                        .stopAndAdd(new motorA(centralMotor, 0.5))
+                        .strafeTo(new Vector2d(27, -11.5))
+                        .waitSeconds(0.4)
+                        .stopAndAdd(new motorA(centralMotor, 0))
+                        .stopAndAdd(new ServoA(servoWrist,0.9))
+                        .waitSeconds(1)
+                        .lineToX(17.5)
+                        .stopAndAdd(new ServoA(servoGarra, 0)) //AQUI LO DEJO
+                        .lineToX(3)
+                        .stopAndAdd(new ServoA(servoWrist, 0))
+                        .stopAndAdd(new motorA(slidesMotor,-1))
+                        .stopAndAdd(new motorA(centralMotor,-0.5))
+                        .waitSeconds(0.4)
+                        .stopAndAdd(new motorA(slidesMotor,0))
+                        .waitSeconds(1)
+                        .stopAndAdd(new motorA(centralMotor,0)) //AQUI SE REIBICIO
+                        .strafeTo(new Vector2d(33, 30.5))
                         .stopAndAdd(new ServoA(servoWrist, 1))
-                        .waitSeconds(2)
+                        .waitSeconds(1.3)
+                        .stopAndAdd(new ServoA(servoGarra, 1)) //AQUI AGARRA EL PRIMER
+                        .waitSeconds(0.5)
+                        .stopAndAdd(new ServoA(servoWrist, 0.6))
+                        .turn(Math.toRadians(-45))
+                        .stopAndAdd(new motorA(centralMotor, 1))
+                        .stopAndAdd(new motorA(slidesMotor, 1))
+                        .waitSeconds(1.8)
+                        .stopAndAdd(new motorA(centralMotor, 0))
+                        .stopAndAdd(new motorA(slidesMotor, 0))
+                        .strafeTo(new Vector2d(12,32))
+                        .stopAndAdd(new ServoA(servoGarra, 0))
+                        .stopAndAdd(new ServoA(servoWrist, 1))
+                        .waitSeconds(0.5)
+                        .stopAndAdd(new motorA(slidesMotor, -1))
+                        .stopAndAdd(new motorA(centralMotor, -1))
+                        .waitSeconds(1.8)
+                        .stopAndAdd(new motorA(slidesMotor, 0))
+                        .stopAndAdd(new motorA(centralMotor, 0))
+                        .strafeToSplineHeading(new Vector2d(15,40), Math.toRadians(0))
                         .stopAndAdd(new ServoA(servoGarra, 1))
                         .waitSeconds(0.5)
-                        .stopAndAdd(new ServoA(servoWrist, 0.7))
-                        .stopAndAdd(new motorA(centralMotor, 1))
-                        .turn(Math.toRadians(-45))
-                        .waitSeconds(0.6)
-                        .stopAndAdd(new motorA(centralMotor, 0))
-                        .stopAndAdd(new motorA(slidesMotor, 1))
-                        .waitSeconds(2)
-                        .stopAndAdd(new motorA(slidesMotor, 0))
-                        .strafeTo(new Vector2d(4, 17))
-                        .stopAndAdd(new ServoA(servoGarra, 0))
-                        .stopAndAdd(new ServoA(servoWrist,1))
+                        .stopAndAdd(new ServoA(servoWrist, 0.6))
+                        .waitSeconds(30)
                         .build());
     }
     public class ServoA implements Action {
 
         Servo servo;
         double position;
+
         public ServoA(Servo s, double p){
             this.servo = s;
             this.position = p;
