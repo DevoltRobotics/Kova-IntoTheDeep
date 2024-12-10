@@ -25,16 +25,24 @@ public class KovaTeleOpCentric extends LinearOpMode {
     ElapsedTime rielesPosTimer = new ElapsedTime();
         @Override
         public void runOpMode() throws InterruptedException {
-            // Declare our motors
-            // Make sure your ID's match your configuration
+
             DcMotor frontLeftMotor = hardwareMap.dcMotor.get("FR");
             DcMotor backLeftMotor = hardwareMap.dcMotor.get("BR");
+       :
+
             DcMotor frontRightMotor = hardwareMap.dcMotor.get("FL");
             DcMotor backRightMotor = hardwareMap.dcMotor.get("BL");
             DcMotor slidesMotor = hardwareMap.dcMotor.get("MR");
             DcMotor centralMotor = hardwareMap.dcMotor.get("C");
             Servo servoGarra = hardwareMap.servo.get("CG");
             Servo servoWrist = hardwareMap.servo.get("CM");
+            // test
+            slidesMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+            centralMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+            frontLeftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+            frontRightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+            backRightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+            backLeftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
             RevTouchSensor touchSensor = hardwareMap.get(RevTouchSensor.class,"TS");
 
