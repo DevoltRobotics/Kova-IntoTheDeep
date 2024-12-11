@@ -28,15 +28,13 @@ public class KovaTeleOpCentric extends LinearOpMode {
 
             DcMotor frontLeftMotor = hardwareMap.dcMotor.get("FR");
             DcMotor backLeftMotor = hardwareMap.dcMotor.get("BR");
-       :
-
             DcMotor frontRightMotor = hardwareMap.dcMotor.get("FL");
             DcMotor backRightMotor = hardwareMap.dcMotor.get("BL");
             DcMotor slidesMotor = hardwareMap.dcMotor.get("MR");
             DcMotor centralMotor = hardwareMap.dcMotor.get("C");
             Servo servoGarra = hardwareMap.servo.get("CG");
             Servo servoWrist = hardwareMap.servo.get("CM");
-            // test
+
             slidesMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
             centralMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
             frontLeftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -66,10 +64,10 @@ public class KovaTeleOpCentric extends LinearOpMode {
 
             if (isStopRequested()) return;
 
-            slidesMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+           // slidesMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             slidesMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-            centralMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+//            centralMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
             centralMotor.setTargetPosition(0);
             centralMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);

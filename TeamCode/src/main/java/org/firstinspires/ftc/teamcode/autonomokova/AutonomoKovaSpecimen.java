@@ -32,10 +32,14 @@ public class AutonomoKovaSpecimen extends LinearOpMode {
         DcMotor slidesMotor = hardwareMap.dcMotor.get("MR");
         DcMotor centralMotor = hardwareMap.dcMotor.get("C");
 
+        centralMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        slidesMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
         centralMotor.setTargetPosition(0);
         slidesMotor.setTargetPosition(0);
         slidesMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         centralMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
         slidesMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         centralMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         //TODO Este autonomo es del la alianza ROJA, CHECAR alianza AZUL
@@ -49,17 +53,17 @@ public class AutonomoKovaSpecimen extends LinearOpMode {
                         .stopAndAdd(new ServoA(servoGarra, 1))
                         .stopAndAdd(new motorEncoder(centralMotor, 1800))
                         .stopAndAdd(new motorEncoder(slidesMotor, 1080))
-                        .lineToX(24)
+                        .lineToX(21)
                         .stopAndAdd(new ServoA(servoWrist, 1))
-                        .waitSeconds(2)
+                        .waitSeconds(1.5)
                         .stopAndAdd(new motorEncoder(centralMotor, 700))
                         .stopAndAdd(new ServoA(servoGarra, 0.2))
                         //AQUI YA DEJO EL PRIMER SPECIMEN
                         .stopAndAdd(new motorEncoder(slidesMotor, 0))
                         .stopAndAdd(new motorEncoder(centralMotor, 0))
                         .stopAndAdd(new ServoA(servoWrist, 0.7))
-                        .strafeToConstantHeading(new Vector2d(24,-38))//VA AL PRIMER SPECIMEN COLOCADO
-                        .strafeToLinearHeading(new Vector2d(29,-37), Math.toRadians(0))
+                        .strafeToConstantHeading(new Vector2d(24,-38))//VA AL PRIMER SAMPLE COLOCADO
+                        .strafeToLinearHeading(new Vector2d(31,-37), Math.toRadians(0))
                         .stopAndAdd(new ServoA(servoWrist, 1))
                         .waitSeconds(0.4)
                         .stopAndAdd(new ServoA(servoGarra, 1))
@@ -67,7 +71,7 @@ public class AutonomoKovaSpecimen extends LinearOpMode {
                         .strafeToLinearHeading(new Vector2d(5, -38), Math.toRadians(180))
                         .stopAndAdd(new ServoA(servoGarra, 0.2)) //DEJA SPECIMEN AL HUMAN
                         .stopAndAdd(new ServoA(servoWrist, 0.7))
-                        .strafeToLinearHeading(new Vector2d(30, -49), Math.toRadians(0))
+                        .strafeToLinearHeading(new Vector2d(31, -46), Math.toRadians(0))
                         .stopAndAdd(new ServoA(servoWrist, 1))
                         .waitSeconds(0.4)
                         .stopAndAdd(new ServoA(servoGarra, 1))
@@ -75,12 +79,35 @@ public class AutonomoKovaSpecimen extends LinearOpMode {
                         .strafeToLinearHeading(new Vector2d(5, -38), Math.toRadians(180))
                         .stopAndAdd(new ServoA(servoGarra, 0.2)) //DEJA EL SEGUNDO SPECIMEN
                         .strafeToLinearHeading(new Vector2d(20, -38), Math.toRadians(180)) //RETROCEDE PARA DAR CHANCE AL HUMAN
+                        .stopAndAdd(new ServoA(servoWrist, 0.7)) //PREPARA BRAZO
+                        .waitSeconds(0.7)
+                        .strafeToLinearHeading(new Vector2d(10, -38), Math.toRadians(180))
+                        .waitSeconds(0.4)
+                        .stopAndAdd(new ServoA(servoGarra, 1)) //AGARRA SPECIMEN
+                        .waitSeconds(0.4)
+                        .stopAndAdd(new ServoA(servoWrist, 0))
+                        .stopAndAdd(new motorEncoder(centralMotor, 1800))
+                        .stopAndAdd(new motorEncoder(slidesMotor, 1080))
+                        .strafeToLinearHeading(new Vector2d(24.7, 3), Math.toRadians(0))
+                        .stopAndAdd(new ServoA(servoWrist, 1))
+                        .waitSeconds(0.7)
+                        .stopAndAdd(new ServoA(servoGarra, 0.2))
+                        .stopAndAdd(new motorEncoder(centralMotor, 0))
+                        .stopAndAdd(new motorEncoder(slidesMotor, 0))
+                        .strafeToLinearHeading(new Vector2d(20, -38), Math.toRadians(180))
                         .stopAndAdd(new ServoA(servoWrist, 0.7))
-                        .waitSeconds(1.5)
                         .strafeToLinearHeading(new Vector2d(10, -38), Math.toRadians(180))
                         .stopAndAdd(new ServoA(servoGarra, 1))
-
+                        .waitSeconds(0.4)
+                        .stopAndAdd(new ServoA(servoWrist, 0))
+                        .stopAndAdd(new motorEncoder(centralMotor, 1800))
+                        .stopAndAdd(new motorEncoder(slidesMotor, 1080))
+                        .strafeToLinearHeading(new Vector2d(24, 5), Math.toRadians(0))
+                        .stopAndAdd(new ServoA(servoWrist, 1))
+                        .waitSeconds(0.7)
+                        .stopAndAdd(new ServoA(servoGarra, 0.2))
                         .waitSeconds(30)
+                        .stopAndAdd(new motorEncoder(centralMotor, 0))
                         .build());
     }
     public class ServoA implements Action {
