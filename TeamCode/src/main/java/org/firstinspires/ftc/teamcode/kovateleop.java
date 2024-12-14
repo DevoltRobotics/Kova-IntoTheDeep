@@ -124,6 +124,8 @@ public class kovateleop extends LinearOpMode {
 
             servoWrist.setPosition(servoWrist.getPosition() - ((gamepad2.right_trigger - gamepad2.left_trigger) * 0.05));
 
+
+
             double rielesError = rielesTargetPos - slidesMotor.getCurrentPosition();
             double rielesProportional = rielesError * rielesP;
 

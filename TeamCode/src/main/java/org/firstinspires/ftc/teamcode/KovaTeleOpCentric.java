@@ -9,6 +9,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
+import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 
@@ -46,6 +47,12 @@ public class KovaTeleOpCentric extends LinearOpMode {
 
             frontLeftMotor.setDirection(DcMotorSimple.Direction.REVERSE);
             backLeftMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+
+            slidesMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            slidesMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+            centralMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            centralMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
             IMU imu = hardwareMap.get(IMU.class, "imu");
 
@@ -102,6 +109,11 @@ public class KovaTeleOpCentric extends LinearOpMode {
                 }
 
                 servoWrist.setPosition(servoWrist.getPosition() - ((gamepad2.right_trigger - gamepad2.left_trigger) * 0.05));
+
+                if (centralMotor.getCurrentPosition() < 260) {
+                    rielesTargetPos = Range.clip(rielesTargetPos, 0, 2575);
+                    telemetry.addLine("extension limitada");
+                }
 
                 double rielesError = rielesTargetPos - slidesMotor.getCurrentPosition();
                 double rielesProportional = rielesError * rielesP;
