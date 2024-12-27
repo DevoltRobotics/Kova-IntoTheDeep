@@ -36,6 +36,8 @@ public class kovateleop extends LinearOpMode {
         Servo servoGarra = hardwareMap.servo.get("CG");
         Servo servoWrist = hardwareMap.servo.get("CM");
 
+        servoWrist.setDirection(Servo.Direction.REVERSE);
+
         RevTouchSensor touchSensor = hardwareMap.get(RevTouchSensor.class,"TS");
 
 

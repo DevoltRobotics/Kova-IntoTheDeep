@@ -61,6 +61,8 @@ public class KovaTeleOpCentric extends LinearOpMode {
                     RevHubOrientationOnRobot.UsbFacingDirection.BACKWARD));
             imu.initialize(parameters);
 
+            servoWrist.getController().pwmDisable();
+
             waitForStart();
 
             if (isStopRequested()) return;
@@ -70,8 +72,10 @@ public class KovaTeleOpCentric extends LinearOpMode {
             centralMotor.setTargetPosition(0);
             centralMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
-            while (opModeIsActive()) {
+            servoWrist.getController().pwmEnable();
+            servoWrist.setPosition(0);
 
+            while (opModeIsActive()) {
                 if(gamepad1.right_trigger>0.5){
                     speed = 0.25;
                 }
@@ -111,7 +115,7 @@ public class KovaTeleOpCentric extends LinearOpMode {
                 servoWrist.setPosition(servoWrist.getPosition() - ((gamepad2.right_trigger - gamepad2.left_trigger) * 0.05));
 
                 if (centralMotor.getCurrentPosition() < 260) {
-                    rielesTargetPos = Range.clip(rielesTargetPos, 0, 2575);
+                    rielesTargetPos = Range.clip(rielesTargetPos, -300, 2575);
                     telemetry.addLine("extension limitada");
                 }
 

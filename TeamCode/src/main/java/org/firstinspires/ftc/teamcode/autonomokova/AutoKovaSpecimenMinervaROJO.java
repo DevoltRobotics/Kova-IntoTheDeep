@@ -17,27 +17,27 @@ import com.qualcomm.robotcore.hardware.Servo;
 import org.firstinspires.ftc.teamcode.MecanumDrive;
 
 @Config
-@Autonomous(name = "Auto-Specimen-AZUL 🟦", group = "Autonomous")
-public class AutoKovaSpecimenAZUL extends LinearOpMode {
+@Autonomous(name = "Auto-Specimen-ROJO 🟥", group = "Autonomous")
+public class AutoKovaSpecimenMinervaROJO extends LinearOpMode {
 
 
     @Override
     public void runOpMode() throws InterruptedException {
         /**---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
-        //              ======Este autonomo es del la alianza ROJA,TODO CAMBIAR para la alianza AZUL======
-        //                          ======TODO Cambiar estas variables======
+        //              ======Este autonomo es del la alianza ROJA======
+        //                 ======TODO Cambiar estas variables======
         //           X=Delante y detras /// Y=Lado Negativo Derecha, Positivo Izquierda
 
-        //Los vectores estan colocados en cada trayectoria para solo modificar directamente aqui, lo que mas falla casi siempre es la distancia hacia adelante (X)
+        //    Los vectores estan colocados en cada trayectoria para solo modificar directamente aqui, lo que mas falla es la distancia hacia adelante (X)
 
-        double primerAcercamiento = 24;
+        double primerAcercamiento = 21.5;
         Vector2d segundoAcercamiento = new Vector2d(28,-39.5);  //TODO Segundo acercamiento para recoger el primer sample en el suelo
         Vector2d tercerAcercamiento = new Vector2d(31, -47.5); //TODO Tercer acercamiento para recoger el segundo sample del suelo
-        Vector2d colocarPrimerSpecimen = new Vector2d(28, 3); //TODO Distancia para colocar primer specimen
-        Vector2d colocarSegundoSpecimen = new Vector2d(28.2, 5); //TODO Distancia para colocar segundo specimen
+        Vector2d colocarPrimerSpecimen = new Vector2d(27.5, 3); //TODO Distancia para colocar primer specimen
+        Vector2d colocarSegundoSpecimen = new Vector2d(26, 5); //TODO Distancia para colocar segundo specimen
 
         Vector2d dejarSampleAlHuman = new Vector2d(10, -38);
-        /**---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+        /**-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 
         MecanumDrive MD = new MecanumDrive(hardwareMap, new Pose2d(0, 0, 0));
         Servo servoGarra = hardwareMap.servo.get("CG");
@@ -59,7 +59,7 @@ public class AutoKovaSpecimenAZUL extends LinearOpMode {
 
         // ===Abrir Garra = 0.2, Cerrar Garra = 1===
         // ===Abajo Brazo = 1, Medio = 0.7, Arriba = 0===
-        // Cada .waitSeconds() es para asegurar que se ejecute la accion
+        // Cada .waitSeconds es para asegurar que se ejecute la accion
 
         waitForStart();
         Actions.runBlocking(
@@ -77,7 +77,7 @@ public class AutoKovaSpecimenAZUL extends LinearOpMode {
                         .stopAndAdd(new motorEncoder(centralMotor, 0))
                         .stopAndAdd(new ServoA(servoWrist, 0.7))
                         .strafeToConstantHeading(new Vector2d(16,-38))
-                        .strafeToLinearHeading(segundoAcercamiento, Math.toRadians(0)) //egundo acercamiento para recoger el primer sample en el suelo
+                        .strafeToLinearHeading(segundoAcercamiento, Math.toRadians(0)) //Segundo acercamiento para recoger el primer sample en el suelo
                         .stopAndAdd(new ServoA(servoWrist, 1))
                         .waitSeconds(0.4)
                         .stopAndAdd(new ServoA(servoGarra, 1))
@@ -95,9 +95,9 @@ public class AutoKovaSpecimenAZUL extends LinearOpMode {
                         .strafeToLinearHeading(new Vector2d(20, -38), Math.toRadians(180)) //RETROCEDE PARA DAR CHANCE AL HUMAN
                         .stopAndAdd(new ServoA(servoWrist, 0.72)) //PREPARA BRAZO
                         .waitSeconds(0.7)
-                        .strafeToLinearHeading(new Vector2d(14.5, -38), Math.toRadians(180)) //Distancia para agarrar sample, -NO LE COLOQUE VARIABLE DE VECTOR-
+                        .strafeToLinearHeading(new Vector2d(14, -38), Math.toRadians(180)) //Distancia para agarrar sample, -NO LE COLOQUE VARIABLE DE VECTOR-
                         .waitSeconds(0.4)
-                        .stopAndAdd(new ServoA(servoGarra, 0.94)) //AGARRA SPECIMEN
+                        .stopAndAdd(new ServoA(servoGarra, 1)) //AGARRA SPECIMEN
                         .waitSeconds(0.4)
                         .stopAndAdd(new ServoA(servoWrist, 0))
                         .stopAndAdd(new motorEncoder(centralMotor, 1800))
@@ -110,8 +110,8 @@ public class AutoKovaSpecimenAZUL extends LinearOpMode {
                         .stopAndAdd(new motorEncoder(slidesMotor, 0))
                         .strafeToLinearHeading(new Vector2d(24, -38), Math.toRadians(180))
                         .stopAndAdd(new ServoA(servoWrist, 0.75))
-                        .strafeToLinearHeading(new Vector2d(15.2, -38), Math.toRadians(180)) //Distancia para agarrar sample, -NO LE COLOQUE VARIABLE DE VECTOR-
-                        .stopAndAdd(new ServoA(servoGarra, 0.94))
+                        .strafeToLinearHeading(new Vector2d(14, -38), Math.toRadians(180)) //Distancia para agarrar sample, -NO LE COLOQUE VARIABLE DE VECTOR-
+                        .stopAndAdd(new ServoA(servoGarra, 1))
                         .waitSeconds(0.4)
                         .stopAndAdd(new ServoA(servoWrist, 0))
                         .stopAndAdd(new motorEncoder(centralMotor, 1800))
@@ -120,13 +120,13 @@ public class AutoKovaSpecimenAZUL extends LinearOpMode {
                         .stopAndAdd(new ServoA(servoWrist, 1))
                         .waitSeconds(0.4)
                         .stopAndAdd(new ServoA(servoGarra, 0.2))
-                        .stopAndAdd(new ServoA(servoWrist,0))
+                        .stopAndAdd(new ServoA(servoWrist,0.7))
                         .stopAndAdd(new motorEncoder(centralMotor, 0))
                         .stopAndAdd(new motorEncoder(slidesMotor, 0))
                         .build());
     }
-
     public class ServoA implements Action {
+
         Servo servo;
         double position;
 

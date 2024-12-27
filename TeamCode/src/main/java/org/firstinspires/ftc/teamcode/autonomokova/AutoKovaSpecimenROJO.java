@@ -118,7 +118,7 @@ public class AutoKovaSpecimenROJO extends LinearOpMode {
                         .stopAndAdd(new motorEncoder(slidesMotor, 1080))
                         .strafeToLinearHeading(colocarSegundoSpecimen, Math.toRadians(0))
                         .stopAndAdd(new ServoA(servoWrist, 1))
-                        .waitSeconds(0.7)
+                        .waitSeconds(0.4)
                         .stopAndAdd(new ServoA(servoGarra, 0.2))
                         .stopAndAdd(new ServoA(servoWrist,0.7))
                         .stopAndAdd(new motorEncoder(centralMotor, 0))

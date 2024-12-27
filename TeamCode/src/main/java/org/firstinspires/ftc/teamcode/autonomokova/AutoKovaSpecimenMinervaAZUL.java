@@ -17,8 +17,8 @@ import com.qualcomm.robotcore.hardware.Servo;
 import org.firstinspires.ftc.teamcode.MecanumDrive;
 
 @Config
-@Autonomous(name = "Auto-Specimen-AZUL 🟦", group = "Autonomous")
-public class AutoKovaSpecimenAZUL extends LinearOpMode {
+@Autonomous(name = "Auto-MINERVA Specimen-AZUL 🟦", group = "Autonomous")
+public class AutoKovaSpecimenMinervaAZUL extends LinearOpMode {
 
 
     @Override
@@ -30,11 +30,11 @@ public class AutoKovaSpecimenAZUL extends LinearOpMode {
 
         //Los vectores estan colocados en cada trayectoria para solo modificar directamente aqui, lo que mas falla casi siempre es la distancia hacia adelante (X)
 
-        double primerAcercamiento = 24;
+        double primerAcercamiento = 22.5;
         Vector2d segundoAcercamiento = new Vector2d(28,-39.5);  //TODO Segundo acercamiento para recoger el primer sample en el suelo
         Vector2d tercerAcercamiento = new Vector2d(31, -47.5); //TODO Tercer acercamiento para recoger el segundo sample del suelo
         Vector2d colocarPrimerSpecimen = new Vector2d(28, 3); //TODO Distancia para colocar primer specimen
-        Vector2d colocarSegundoSpecimen = new Vector2d(28.2, 5); //TODO Distancia para colocar segundo specimen
+        Vector2d colocarSegundoSpecimen = new Vector2d(27.5, 5); //TODO Distancia para colocar segundo specimen
 
         Vector2d dejarSampleAlHuman = new Vector2d(10, -38);
         /**---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
@@ -95,9 +95,9 @@ public class AutoKovaSpecimenAZUL extends LinearOpMode {
                         .strafeToLinearHeading(new Vector2d(20, -38), Math.toRadians(180)) //RETROCEDE PARA DAR CHANCE AL HUMAN
                         .stopAndAdd(new ServoA(servoWrist, 0.72)) //PREPARA BRAZO
                         .waitSeconds(0.7)
-                        .strafeToLinearHeading(new Vector2d(14.5, -38), Math.toRadians(180)) //Distancia para agarrar sample, -NO LE COLOQUE VARIABLE DE VECTOR-
+                        .strafeToLinearHeading(new Vector2d(14, -38), Math.toRadians(180)) //Distancia para agarrar sample, -NO LE COLOQUE VARIABLE DE VECTOR-
                         .waitSeconds(0.4)
-                        .stopAndAdd(new ServoA(servoGarra, 0.94)) //AGARRA SPECIMEN
+                        .stopAndAdd(new ServoA(servoGarra, 1)) //AGARRA SPECIMEN
                         .waitSeconds(0.4)
                         .stopAndAdd(new ServoA(servoWrist, 0))
                         .stopAndAdd(new motorEncoder(centralMotor, 1800))
@@ -110,8 +110,8 @@ public class AutoKovaSpecimenAZUL extends LinearOpMode {
                         .stopAndAdd(new motorEncoder(slidesMotor, 0))
                         .strafeToLinearHeading(new Vector2d(24, -38), Math.toRadians(180))
                         .stopAndAdd(new ServoA(servoWrist, 0.75))
-                        .strafeToLinearHeading(new Vector2d(15.2, -38), Math.toRadians(180)) //Distancia para agarrar sample, -NO LE COLOQUE VARIABLE DE VECTOR-
-                        .stopAndAdd(new ServoA(servoGarra, 0.94))
+                        .strafeToLinearHeading(new Vector2d(14, -38), Math.toRadians(180)) //Distancia para agarrar sample, -NO LE COLOQUE VARIABLE DE VECTOR-
+                        .stopAndAdd(new ServoA(servoGarra, 1))
                         .waitSeconds(0.4)
                         .stopAndAdd(new ServoA(servoWrist, 0))
                         .stopAndAdd(new motorEncoder(centralMotor, 1800))
