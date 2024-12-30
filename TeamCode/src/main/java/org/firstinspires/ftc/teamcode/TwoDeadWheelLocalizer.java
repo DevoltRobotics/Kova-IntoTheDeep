@@ -1,3 +1,4 @@
+/*
 package org.firstinspires.ftc.teamcode;
 
 import com.acmerobotics.dashboard.config.Config;
@@ -26,7 +27,7 @@ import org.firstinspires.ftc.teamcode.messages.TwoDeadWheelInputsMessage;
 @Config
 public final class TwoDeadWheelLocalizer implements Localizer {
     public static class Params {
-            public double parYTicks = 2103.748520933937; // y position of the parallel encoder (in tick units)
+        public double parYTicks = 2103.748520933937; // y position of the parallel encoder (in tick units)
         public double perpXTicks = -1636.0521735039358; // x position of the perpendicular encoder (in tick units)
     }
 
@@ -90,8 +91,8 @@ public final class TwoDeadWheelLocalizer implements Localizer {
         if (!initialized) {
             initialized = true;
 
-            lastParPos = parPosVel.position;
-            lastPerpPos = perpPosVel.position;
+            lastParPos = (int) parPosVel.position;
+            lastPerpPos = (int) perpPosVel.position;
             lastHeading = heading;
 
             return new Twist2dDual<>(
@@ -100,8 +101,8 @@ public final class TwoDeadWheelLocalizer implements Localizer {
             );
         }
 
-        int parPosDelta = parPosVel.position - lastParPos;
-        int perpPosDelta = perpPosVel.position - lastPerpPos;
+        int parPosDelta = (int) parPosVel.position - lastParPos;
+        int perpPosDelta = (int) perpPosVel.position - lastPerpPos;
         double headingDelta = heading.minus(lastHeading);
 
         Twist2dDual<Time> twist = new Twist2dDual<>(
@@ -121,10 +122,11 @@ public final class TwoDeadWheelLocalizer implements Localizer {
                 })
         );
 
-        lastParPos = parPosVel.position;
-        lastPerpPos = perpPosVel.position;
+        lastParPos = (int) parPosVel.position;
+        lastPerpPos = (int) perpPosVel.position;
         lastHeading = heading;
 
         return twist;
     }
 }
+ */

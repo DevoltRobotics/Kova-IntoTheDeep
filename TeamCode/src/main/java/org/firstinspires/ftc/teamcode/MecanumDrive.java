@@ -1,3 +1,4 @@
+/*
 package org.firstinspires.ftc.teamcode;
 
 import androidx.annotation.NonNull;
@@ -151,10 +152,10 @@ public class MecanumDrive {
             if (!initialized) {
                 initialized = true;
 
-                lastLeftFrontPos = leftFrontPosVel.position;
-                lastLeftBackPos = leftBackPosVel.position;
-                lastRightBackPos = rightBackPosVel.position;
-                lastRightFrontPos = rightFrontPosVel.position;
+                lastLeftFrontPos = (int) leftFrontPosVel.position;
+                lastLeftBackPos = (int) leftBackPosVel.position;
+                lastRightBackPos = (int) rightBackPosVel.position;
+                lastRightFrontPos = (int) rightFrontPosVel.position;
 
                 lastHeading = heading;
 
@@ -184,10 +185,10 @@ public class MecanumDrive {
                     }).times(PARAMS.inPerTick)
             ));
 
-            lastLeftFrontPos = leftFrontPosVel.position;
-            lastLeftBackPos = leftBackPosVel.position;
-            lastRightBackPos = rightBackPosVel.position;
-            lastRightFrontPos = rightFrontPosVel.position;
+            lastLeftFrontPos = (int) leftFrontPosVel.position;
+            lastLeftBackPos = (int) leftBackPosVel.position;
+            lastRightBackPos = (int) rightBackPosVel.position;
+            lastRightFrontPos = (int) rightFrontPosVel.position;
 
             lastHeading = heading;
 
@@ -478,3 +479,4 @@ public class MecanumDrive {
         );
     }
 }
+ */

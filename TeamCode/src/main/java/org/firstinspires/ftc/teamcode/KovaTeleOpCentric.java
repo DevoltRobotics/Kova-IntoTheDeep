@@ -23,18 +23,25 @@ public class KovaTeleOpCentric extends LinearOpMode {
     int centroTargetPos = 0;
     double speed = 1;
 
+    boolean colgada = false;
+
     ElapsedTime rielesPosTimer = new ElapsedTime();
         @Override
         public void runOpMode() throws InterruptedException {
 
-            DcMotor frontLeftMotor = hardwareMap.dcMotor.get("FR");
-            DcMotor backLeftMotor = hardwareMap.dcMotor.get("BR");
-            DcMotor frontRightMotor = hardwareMap.dcMotor.get("FL");
-            DcMotor backRightMotor = hardwareMap.dcMotor.get("BL");
+            DcMotor frontLeftMotor = hardwareMap.dcMotor.get("leftFront");
+            DcMotor backLeftMotor = hardwareMap.dcMotor.get("leftRear");
+            DcMotor frontRightMotor = hardwareMap.dcMotor.get("rightFront");
+            DcMotor backRightMotor = hardwareMap.dcMotor.get("rightRear");
             DcMotor slidesMotor = hardwareMap.dcMotor.get("MR");
             DcMotor centralMotor = hardwareMap.dcMotor.get("C");
             Servo servoGarra = hardwareMap.servo.get("CG");
             Servo servoWrist = hardwareMap.servo.get("CM");
+
+            Servo leftC = hardwareMap.servo.get("scl");
+            Servo rightC = hardwareMap.servo.get("scr");
+            DcMotor leftCM = hardwareMap.dcMotor.get("cl");
+            DcMotor rightCM = hardwareMap.dcMotor.get("cr");
 
             slidesMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
             centralMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -42,6 +49,9 @@ public class KovaTeleOpCentric extends LinearOpMode {
             frontRightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
             backRightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
             backLeftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+            rightC.setDirection(Servo.Direction.REVERSE);
+
 
             RevTouchSensor touchSensor = hardwareMap.get(RevTouchSensor.class,"TS");
 
@@ -54,7 +64,7 @@ public class KovaTeleOpCentric extends LinearOpMode {
             centralMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             centralMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-            IMU imu = hardwareMap.get(IMU.class, "imu");
+            IMU imu = hardwareMap.get(IMU.class, "imuc");
 
             IMU.Parameters parameters = new IMU.Parameters(new RevHubOrientationOnRobot(
                     RevHubOrientationOnRobot.LogoFacingDirection.UP,
@@ -76,13 +86,13 @@ public class KovaTeleOpCentric extends LinearOpMode {
             servoWrist.setPosition(0);
 
             while (opModeIsActive()) {
-                if(gamepad1.right_trigger>0.5){
+            if(!colgada) {
+                if (gamepad1.right_trigger > 0.5) {
                     speed = 0.25;
-                }
-                if(gamepad1.right_trigger<0.5){
+                } else if (gamepad1.right_trigger < 0.5) {
                     speed = 1;
                 }
-
+            }
                 rielesTargetPos += (int) (gamepad2.left_stick_y * 50);
 
                 if(touchSensor.isPressed()){
@@ -101,9 +111,9 @@ public class KovaTeleOpCentric extends LinearOpMode {
                 if(gamepad2.dpad_up) { // automatizacion movimientos de muñeca
                     servoWrist.setPosition(0);
                 } else if(gamepad2.dpad_right) {
-                    servoWrist.setPosition(0.7);
+                    servoWrist.setPosition(0.25);
                 } else if(gamepad2.dpad_down) {
-                    servoWrist.setPosition(1);
+                    servoWrist.setPosition(0.65);
                 }
 
                 if(gamepad2.x) { // automatizacion bajar rieles y guardar garra
@@ -132,10 +142,45 @@ public class KovaTeleOpCentric extends LinearOpMode {
                     centroTargetPos = centralMotor.getCurrentPosition();
                 }
 
+
+                if(colgada) {
+                    leftCM.setPower(-gamepad1.right_trigger);
+                    rightCM.setPower(gamepad1.right_trigger);
+                    leftCM.setPower(gamepad1.left_trigger);
+                    rightCM.setPower(-gamepad1.left_trigger);
+
+                    if (gamepad1.a){
+                        leftC.setPosition(0);
+                        rightC.setPosition(1);
+                    }else if(gamepad1.y){
+                        leftC.setPosition(0.6);
+                        rightC.setPosition(0.4);
+                    }else if (gamepad1.b){
+                        leftC.getController().pwmDisable();
+                        rightC.getController().pwmDisable();
+                    }else if (gamepad1.x){
+                        leftC.getController().pwmEnable();
+                        rightC.getController().pwmEnable();
+                    }
+                }
+
+                if(gamepad1.dpad_up){
+                    colgada = !colgada;
+                }
+
+
+                telemetry.addData("Colgada", colgada);
+
+                telemetry.addData("Trigger Value", gamepad1.left_trigger);
+                telemetry.addData("Wrist Position", servoWrist.getPosition());
+                telemetry.addData("Motor Power L", leftCM.getPower());
+                telemetry.addData("Motor Power F", rightCM.getPower());
                 telemetry.addData("TS",touchSensor.isPressed());
                 telemetry.addData("encoderrelies",slidesMotor.getCurrentPosition());
                 telemetry.addData("encodercentral",centralMotor.getCurrentPosition());
                 telemetry.update();
+
+                //Centrico Driver 1
 
                 double y = -gamepad1.left_stick_y;
                 double x = gamepad1.left_stick_x;
