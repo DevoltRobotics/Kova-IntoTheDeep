@@ -111,7 +111,7 @@ public class KovaTeleOpCentric extends LinearOpMode {
                 if(gamepad2.dpad_up) { // automatizacion movimientos de muñeca
                     servoWrist.setPosition(0);
                 } else if(gamepad2.dpad_right) {
-                    servoWrist.setPosition(0.25);
+                    servoWrist.setPosition(0.35);
                 } else if(gamepad2.dpad_down) {
                     servoWrist.setPosition(0.65);
                 }
@@ -125,7 +125,7 @@ public class KovaTeleOpCentric extends LinearOpMode {
                 servoWrist.setPosition(servoWrist.getPosition() - ((gamepad2.right_trigger - gamepad2.left_trigger) * 0.05));
 
                 if (centralMotor.getCurrentPosition() < 260) {
-                    rielesTargetPos = Range.clip(rielesTargetPos, -300, 2575);
+                    //rielesTargetPos = Range.clip(rielesTargetPos, -300, 2575);
                     telemetry.addLine("extension limitada");
                 }
 
