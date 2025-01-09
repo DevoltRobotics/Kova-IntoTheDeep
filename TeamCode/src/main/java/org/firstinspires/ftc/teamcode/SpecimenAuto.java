@@ -10,9 +10,12 @@ import com.pedropathing.pathgen.Point;
 import com.pedropathing.util.Timer;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.hardware.Servo;
 
 @Autonomous(name = "PedroPathAuto", group = "PedroPath")
 public class SpecimenAuto extends OpMode {
+
+
 
     private Follower follower;
     private Timer pathTimer;
@@ -114,6 +117,7 @@ public class SpecimenAuto extends OpMode {
         follower = new Follower(hardwareMap);
         follower.setStartingPose(startPose);
         buildPaths();
+        Servo servoWrist = hardwareMap.servo.get("CM");
     }
 
     @Override

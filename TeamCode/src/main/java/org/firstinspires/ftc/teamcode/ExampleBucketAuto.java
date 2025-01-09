@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.pedropathing.follower.Follower;
-import com.pedropathing.follower.FollowerConstants;
 import com.pedropathing.localization.Pose;
 import com.pedropathing.pathgen.BezierCurve;
 import com.pedropathing.pathgen.BezierLine;
@@ -12,12 +11,44 @@ import com.pedropathing.util.Timer;
 import com.pedropathing.util.Constants;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import  com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.Servo;
 
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
 
 @Autonomous(name = "Example Auto Blue", group = "PedroPath")
 public class ExampleBucketAuto extends OpMode {
+
+    DcMotor slidesMotor;
+    DcMotor centralMotor;
+    Servo servoGarra, servoWrist;
+
+    public void initHardware(){
+        slidesMotor = hardwareMap.dcMotor.get("MR");
+        centralMotor = hardwareMap.dcMotor.get("C");
+        servoGarra = hardwareMap.servo.get("CG");
+        servoWrist = hardwareMap.servo.get("CM");
+
+        slidesMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        centralMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+        slidesMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        slidesMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        centralMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        centralMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        centralMotor.setTargetPosition(0);
+        centralMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+        slidesMotor.setTargetPosition(0);
+        slidesMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+
+
+    }
+
 
     private Follower follower;
     private Timer pathTimer, actionTimer, opmodeTimer;
@@ -99,7 +130,14 @@ public class ExampleBucketAuto extends OpMode {
         switch (pathState) {
             case 0:
                 follower.followPath(scorePreload);
-                setPathState(1);
+                slidesMotor.setTargetPosition(-950);
+
+                if(follower.getPose().getX()>(scorePose.getX()-1)){
+                    servoWrist.setPosition(0.65);
+                    setPathState(1);
+                }
+
+
                 break;
             case 1:
 
@@ -110,6 +148,7 @@ public class ExampleBucketAuto extends OpMode {
                 */
 
                 if(!follower.isBusy()) {
+                    servoWrist.setPosition(0);
                     follower.followPath(goToSpecimen1,true);
                     setPathState(2);
                 }
@@ -135,35 +174,13 @@ public class ExampleBucketAuto extends OpMode {
                 break;
             case 5:
                 if(!follower.isBusy()){
+
                     follower.followPath(waitForHumanSpecimen, true);
 
                     setPathState(6);
                 }
                 break;
-            case 6:
 
-
-
-                break;
-//            case 7:
-//                /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the scorePose's position */
-//                if(follower.getPose().getX() > (scorePose.getX() - 1) && follower.getPose().getY() > (scorePose.getY() - 1)) {
-//                    /* Score Sample */
-//
-//                    /* Since this is a pathChain, we can have Pedro hold the end point while we are parked */
-//                    follower.followPath(park,true);
-//                    setPathState(8);
-//                }
-//                break;
-//            case 8:
-//                /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the scorePose's position */
-//                if(follower.getPose().getX() > (parkPose.getX() - 1) && follower.getPose().getY() > (parkPose.getY() - 1)) {
-//                    /* Level 1 Ascent */
-//
-//                    /* Set the state to a Case we won't use or define, so it just stops running an new paths */
-//                    setPathState(-1);
-//                }
-//                break;
         }
     }
 
@@ -201,6 +218,7 @@ public class ExampleBucketAuto extends OpMode {
         follower = new Follower(hardwareMap);
         follower.setStartingPose(startPose);
         buildPaths();
+        initHardware();
     }
 
     /** This method is called continuously after Init while waiting for "play". **/
@@ -212,6 +230,7 @@ public class ExampleBucketAuto extends OpMode {
     @Override
     public void start() {
         opmodeTimer.resetTimer();
+        follower.setMaxPower(1);
         setPathState(0);
     }
 
