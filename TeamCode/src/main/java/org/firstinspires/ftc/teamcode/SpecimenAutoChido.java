@@ -53,8 +53,10 @@ public class SpecimenAutoChido extends OpMode {
     private final Pose scoreTosampleControl1 = new Pose(4,19, Math.toRadians(180));
     private final Pose scoreTosampleControl2 = new Pose(65 ,49, Math.toRadians(180));
 
+    private final Pose grabSpecimen = new Pose(10,22,Math.toRadians(180));
 
-    private Path scorePreload, goToSpecimen1, leaveSample2, waitForHumanSpecimen;
+
+    private Path scorePreload, goToSpecimen1, leaveSample2, waitForHumanSpecimen, goToSpecimen2from1,specimen2ToGrab, grabToScore, scoreToGrab;
 
     /** Build the paths for the auto (adds, for example, constant/linear headings while doing paths)
      * It is necessary to do this so that all the paths are built before the auto starts. **/
@@ -84,8 +86,22 @@ public class SpecimenAutoChido extends OpMode {
         leaveSample2 = new Path(new BezierLine(new Point(sample2), new Point(humanSample)));
         leaveSample2.setConstantHeadingInterpolation(humanSample.getHeading());
 
+        goToSpecimen2from1 = new Path(new BezierLine(new Point(sample1), new Point (sample2)));
+        goToSpecimen2from1.setConstantHeadingInterpolation(sample1.getHeading());
+
+
         waitForHumanSpecimen = new Path(new BezierLine(new Point(humanSample), new Point(waitForHuman)));
         waitForHumanSpecimen.setConstantHeadingInterpolation(humanSample.getHeading());
+
+        specimen2ToGrab = new Path(new BezierLine(new Point(sample2), new Point(grabSpecimen)));
+        specimen2ToGrab.setConstantHeadingInterpolation(sample2.getHeading());
+
+        grabToScore = new Path(new BezierLine(new Point(grabSpecimen), new Point(scorePose)));
+        grabToScore.setLinearHeadingInterpolation(grabSpecimen.getHeading(), scorePose.getHeading());
+
+        scoreToGrab = new Path(new BezierLine(new Point(scorePose), new Point(grabSpecimen)));
+        scoreToGrab.setLinearHeadingInterpolation(scorePose.getHeading(), grabSpecimen.getHeading());
+
 
         pathCommand = new SequentialCommandGroup(
                 new ParallelDeadlineGroup(
@@ -110,7 +126,11 @@ public class SpecimenAutoChido extends OpMode {
                 ),
 
                 pedroSubsystem.followPathCmd(leaveSample2),
-                pedroSubsystem.followPathCmd(waitForHumanSpecimen)
+                pedroSubsystem.followPathCmd(goToSpecimen1),
+                pedroSubsystem.followPathCmd(goToSpecimen2from1),
+                pedroSubsystem.followPathCmd(specimen2ToGrab),
+                pedroSubsystem.followPathCmd(grabToScore),
+                pedroSubsystem.followPathCmd(scoreToGrab)
         );
      }
 
