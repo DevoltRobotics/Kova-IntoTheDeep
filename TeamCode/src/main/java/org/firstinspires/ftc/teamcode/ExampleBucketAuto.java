@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.arcrobotics.ftclib.command.CommandScheduler;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.localization.Pose;
 import com.pedropathing.pathgen.BezierCurve;
@@ -73,10 +74,8 @@ public class ExampleBucketAuto extends OpMode {
     private final Pose scoreTosampleControl2 = new Pose(65 ,49, Math.toRadians(180));
 
 
-
-
     private Path scorePreload, goToSpecimen1, leaveSample2,waitForHumanSpecimen;
-    private PathChain  leaveSample, goToSpecimen2;
+    private PathChain pathChain;
 
     /** Build the paths for the auto (adds, for example, constant/linear headings while doing paths)
      * It is necessary to do this so that all the paths are built before the auto starts. **/
@@ -109,87 +108,15 @@ public class ExampleBucketAuto extends OpMode {
         waitForHumanSpecimen = new Path(new BezierLine(new Point(humanSample), new Point(waitForHuman)));
         waitForHumanSpecimen.setConstantHeadingInterpolation(humanSample.getHeading());
 
-
         goToSpecimen2 = follower.pathBuilder()
                 .addPath(new BezierLine(new Point(sample1), new Point(sample2)))
                 .setConstantHeadingInterpolation(humanSample.getHeading())
                 .addPath(new BezierLine(new Point(humanSample), new Point(sample1)))
                 .setConstantHeadingInterpolation(humanSample.getHeading())
-                .build();
-
-        leaveSample = follower.pathBuilder()
                 .addPath(new BezierLine(new Point(sample1), new Point(humanSample)))
                 .setConstantHeadingInterpolation(humanSample.getHeading())
                 .build();
      }
-
-    /** This switch is called continuously and runs the pathing, at certain points, it triggers the action state.
-     * Everytime the switch changes case, it will reset the timer. (This is because of the setPathState() method)
-     * The followPath() function sets the follower to run the specific path, but does NOT wait for it to finish before moving on. */
-    public void autonomousPathUpdate() {
-        switch (pathState) {
-            case 0:
-                follower.followPath(scorePreload);
-                slidesMotor.setTargetPosition(-950);
-
-                if(follower.getPose().getX()>(scorePose.getX()-1)){
-                    servoWrist.setPosition(0.65);
-                    setPathState(1);
-                }
-
-
-                break;
-            case 1:
-
-                /* You could check for
-                - Follower State: "if(!follower.isBusy() {}"
-                - Time: "if(pathTimer.getElapsedTimeSeconds() > 1) {}"
-                - Robot Position: "if(follower.getPose().getX() > 36) {}"
-                */
-
-                if(!follower.isBusy()) {
-                    servoWrist.setPosition(0);
-                    follower.followPath(goToSpecimen1,true);
-                    setPathState(2);
-                }
-                break;
-            case 2:
-                if(!follower.isBusy()) {
-                    follower.followPath(leaveSample,false);
-                    setPathState(3);
-                }
-                break;
-            case 3:
-                if(!follower.isBusy()) {
-
-                    follower.followPath(goToSpecimen2,true);
-                    setPathState(4);
-                }
-                break;
-            case 4:
-                    if(!follower.isBusy()) {
-                        follower.followPath(leaveSample2);
-                        setPathState(5);
-                    }
-                break;
-            case 5:
-                if(!follower.isBusy()){
-
-                    follower.followPath(waitForHumanSpecimen, true);
-
-                    setPathState(6);
-                }
-                break;
-
-        }
-    }
-
-    /** These change the states of the paths and actions
-     * It will also reset the timers of the individual switches **/
-    public void setPathState(int pState) {
-        pathState = pState;
-        pathTimer.resetTimer();
-    }
 
     /** This is the main loop of the OpMode, it will run repeatedly after clicking "Play". **/
     @Override
@@ -197,7 +124,7 @@ public class ExampleBucketAuto extends OpMode {
 
         // These loop the movements of the robot
         follower.update();
-        autonomousPathUpdate();
+        CommandScheduler.getInstance().run();
 
         // Feedback to Driver Hub
         telemetry.addData("path state", pathState);
@@ -217,21 +144,23 @@ public class ExampleBucketAuto extends OpMode {
         Constants.setConstants(FConstants.class, LConstants.class);
         follower = new Follower(hardwareMap);
         follower.setStartingPose(startPose);
+        follower.followPath(pathChain);
+
         buildPaths();
         initHardware();
     }
 
     /** This method is called continuously after Init while waiting for "play". **/
     @Override
-    public void init_loop() {}
+    public void init_loop() {
+        CommandScheduler.getInstance().run();
+    }
 
     /** This method is called once at the start of the OpMode.
      * It runs all the setup actions, including building paths and starting the path system **/
     @Override
     public void start() {
         opmodeTimer.resetTimer();
-        follower.setMaxPower(1);
-        setPathState(0);
     }
 
     /** We do not use this because everything should automatically disable **/

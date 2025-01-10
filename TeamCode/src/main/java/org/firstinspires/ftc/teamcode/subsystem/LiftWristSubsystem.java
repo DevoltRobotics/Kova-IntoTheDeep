@@ -6,41 +6,36 @@ import com.arcrobotics.ftclib.command.CommandBase;
 import com.arcrobotics.ftclib.command.SubsystemBase;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
-@Config
-public class LiftSubsystem extends SubsystemBase {
+public class LiftWristSubsystem extends SubsystemBase {
 
-    public static final double rielesP = 0.004;
-    public static final double rielesF = 0.09;
+    DcMotor liftWristMotor;
 
-    DcMotor liftMotor;
-
-    public LiftSubsystem(DcMotor liftMotor) {
-        this.liftMotor = liftMotor;
+    public LiftWristSubsystem(DcMotor liftWristMotor) {
+        this.liftWristMotor = liftWristMotor;
     }
 
-    public Command liftToPosCmd(double position) {
-        return new LiftToPosCmd(position);
+    public Command liftWristToPosCmd(double position) {
+        return new LiftWristToPosCmd(position);
     }
 
-    class LiftToPosCmd extends CommandBase {
+    class LiftWristToPosCmd extends CommandBase {
         double position;
 
-        public LiftToPosCmd(double position) {
+        public LiftWristToPosCmd(double position) {
             this.position = position;
-            addRequirements(LiftSubsystem.this);
+            addRequirements(LiftWristSubsystem.this);
         }
 
         @Override
         public void execute() {
-            double rielesError = position - liftMotor.getCurrentPosition();
-            double rielesProportional = rielesError * rielesP;
-
-            liftMotor.setPower(rielesProportional + rielesF);
+            liftWristMotor.setTargetPosition(0);
+            liftWristMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         }
 
         @Override
         public void end(boolean interrupted) {
-            liftMotor.setPower(0);
+            liftWristMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            liftWristMotor.setPower(0);
         }
     }
 }

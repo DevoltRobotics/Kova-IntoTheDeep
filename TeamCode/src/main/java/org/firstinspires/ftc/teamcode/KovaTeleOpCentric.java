@@ -28,41 +28,8 @@ public class KovaTeleOpCentric extends LinearOpMode {
     ElapsedTime rielesPosTimer = new ElapsedTime();
     @Override
     public void runOpMode() throws InterruptedException {
-
-        DcMotor frontLeftMotor = hardwareMap.dcMotor.get("leftFront");
-        DcMotor backLeftMotor = hardwareMap.dcMotor.get("leftRear");
-        DcMotor frontRightMotor = hardwareMap.dcMotor.get("rightFront");
-        DcMotor backRightMotor = hardwareMap.dcMotor.get("rightRear");
-        DcMotor slidesMotor = hardwareMap.dcMotor.get("MR");
-        DcMotor centralMotor = hardwareMap.dcMotor.get("C");
-        Servo servoGarra = hardwareMap.servo.get("CG");
-        Servo servoWrist = hardwareMap.servo.get("CM");
-
-        Servo leftC = hardwareMap.servo.get("scl");
-        Servo rightC = hardwareMap.servo.get("scr");
-        DcMotor leftCM = hardwareMap.dcMotor.get("cl");
-        DcMotor rightCM = hardwareMap.dcMotor.get("cr");
-
-        slidesMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        centralMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        frontLeftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        frontRightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        backRightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        backLeftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-
-        rightC.setDirection(Servo.Direction.REVERSE);
-
-
-        RevTouchSensor touchSensor = hardwareMap.get(RevTouchSensor.class,"TS");
-
-        frontLeftMotor.setDirection(DcMotorSimple.Direction.REVERSE);
-        backLeftMotor.setDirection(DcMotorSimple.Direction.REVERSE);
-
-        slidesMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        slidesMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-
-        centralMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        centralMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        Hardware hdw = new Hardware();
+        hdw.init(hardwareMap);
 
         IMU imu = hardwareMap.get(IMU.class, "imuc");
 
@@ -71,19 +38,17 @@ public class KovaTeleOpCentric extends LinearOpMode {
                 RevHubOrientationOnRobot.UsbFacingDirection.BACKWARD));
         imu.initialize(parameters);
 
-        servoWrist.getController().pwmDisable();
-
         waitForStart();
 
         if (isStopRequested()) return;
 
-        slidesMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        hdw.slidesMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-        centralMotor.setTargetPosition(0);
-        centralMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        hdw.centralMotor.setTargetPosition(0);
+        hdw.centralMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
-        servoWrist.getController().pwmEnable();
-        servoWrist.setPosition(0);
+        hdw.servoWrist.getController().pwmEnable();
+        hdw.servoWrist.setPosition(0);
 
         while (opModeIsActive()) {
             if(!colgada) {
@@ -95,72 +60,71 @@ public class KovaTeleOpCentric extends LinearOpMode {
             }
             rielesTargetPos += (int) (gamepad2.left_stick_y * 50);
 
-            if(touchSensor.isPressed()){
-                centralMotor.setPower(0);
+            if(hdw.touchSensor.isPressed()){
+                hdw.centralMotor.setPower(0);
             } else {
-                centralMotor.setPower(1);
+                hdw.centralMotor.setPower(1);
                 centroTargetPos += (int) (gamepad2.right_stick_y * 25);
             }
 
             if(gamepad2.b) {
-                servoGarra.setPosition(0.2);
+                hdw.servoGarra.setPosition(0.2);
             } else if(gamepad2.a){
-                servoGarra.setPosition(1);
+                hdw.servoGarra.setPosition(1);
             }
 
             if(gamepad2.dpad_up) { // automatizacion movimientos de muñeca
-                servoWrist.setPosition(0);
+                hdw.servoWrist.setPosition(0);
             } else if(gamepad2.dpad_right) {
-                servoWrist.setPosition(0.35);
+                hdw.servoWrist.setPosition(0.35);
             } else if(gamepad2.dpad_down) {
-                servoWrist.setPosition(0.65);
+                hdw.servoWrist.setPosition(0.65);
             }
 
             if(gamepad2.x) { // automatizacion bajar rieles y guardar garra
-                servoWrist.setPosition(0);
+                hdw.servoWrist.setPosition(0);
             } else if(gamepad2.y) {
-                servoWrist.setPosition(0.7);
+                hdw.servoWrist.setPosition(0.7);
             }
 
-            servoWrist.setPosition(servoWrist.getPosition() - ((gamepad2.right_trigger - gamepad2.left_trigger) * 0.05));
+            hdw.servoWrist.setPosition(hdw.servoWrist.getPosition() - ((gamepad2.right_trigger - gamepad2.left_trigger) * 0.05));
 
-            if (centralMotor.getCurrentPosition() < 260) {
+            if (hdw.centralMotor.getCurrentPosition() < 260) {
                 //rielesTargetPos = Range.clip(rielesTargetPos, -300, 2575);
                 telemetry.addLine("extension limitada");
             }
 
-            double rielesError = rielesTargetPos - slidesMotor.getCurrentPosition();
+            double rielesError = rielesTargetPos - hdw.slidesMotor.getCurrentPosition();
             double rielesProportional = rielesError * rielesP;
 
-            slidesMotor.setPower(rielesProportional + rielesF);
+            hdw.slidesMotor.setPower(rielesProportional + rielesF);
 
-            centralMotor.setTargetPosition(centroTargetPos);
+            hdw.centralMotor.setTargetPosition(centroTargetPos);
 
             if(rielesPosTimer.milliseconds() > 2000) {
                 rielesPosTimer.reset();
-                rielesTargetPos = slidesMotor.getCurrentPosition();
-                centroTargetPos = centralMotor.getCurrentPosition();
+                rielesTargetPos = hdw.slidesMotor.getCurrentPosition();
+                centroTargetPos = hdw.centralMotor.getCurrentPosition();
             }
 
-
             if(colgada) {
-                leftCM.setPower(-gamepad1.right_trigger);
-                rightCM.setPower(gamepad1.right_trigger);
-                leftCM.setPower(gamepad1.left_trigger);
-                rightCM.setPower(-gamepad1.left_trigger);
+                hdw.leftCM.setPower(-gamepad1.right_trigger);
+                hdw.rightCM.setPower(gamepad1.right_trigger);
+                hdw.leftCM.setPower(gamepad1.left_trigger);
+                hdw.rightCM.setPower(-gamepad1.left_trigger);
 
                 if (gamepad1.a){
-                    leftC.setPosition(0);
-                    rightC.setPosition(1);
+                    hdw.leftC.setPosition(0);
+                    hdw.rightC.setPosition(1);
                 }else if(gamepad1.y){
-                    leftC.setPosition(0.6);
-                    rightC.setPosition(0.4);
+                    hdw.leftC.setPosition(0.6);
+                    hdw.rightC.setPosition(0.4);
                 }else if (gamepad1.b){
-                    leftC.getController().pwmDisable();
-                    rightC.getController().pwmDisable();
+                    hdw.leftC.getController().pwmDisable();
+                    hdw.rightC.getController().pwmDisable();
                 }else if (gamepad1.x){
-                    leftC.getController().pwmEnable();
-                    rightC.getController().pwmEnable();
+                    hdw.leftC.getController().pwmEnable();
+                    hdw.rightC.getController().pwmEnable();
                 }
             }
 
@@ -172,12 +136,12 @@ public class KovaTeleOpCentric extends LinearOpMode {
             telemetry.addData("Colgada", colgada);
 
             telemetry.addData("Trigger Value", gamepad1.left_trigger);
-            telemetry.addData("Wrist Position", servoWrist.getPosition());
-            telemetry.addData("Motor Power L", leftCM.getPower());
-            telemetry.addData("Motor Power F", rightCM.getPower());
-            telemetry.addData("TS",touchSensor.isPressed());
-            telemetry.addData("encoderrelies",slidesMotor.getCurrentPosition());
-            telemetry.addData("encodercentral",centralMotor.getCurrentPosition());
+            telemetry.addData("Wrist Position", hdw.servoWrist.getPosition());
+            telemetry.addData("Motor Power L", hdw.leftCM.getPower());
+            telemetry.addData("Motor Power F", hdw.rightCM.getPower());
+            telemetry.addData("TS", hdw.touchSensor.isPressed());
+            telemetry.addData("encoderrelies", hdw.slidesMotor.getCurrentPosition());
+            telemetry.addData("encodercentral", hdw.centralMotor.getCurrentPosition());
             telemetry.update();
 
             //Centrico Driver 1
@@ -203,10 +167,10 @@ public class KovaTeleOpCentric extends LinearOpMode {
             double frontRightPower = (rotY - rotX - rx) / denominator;
             double backRightPower = (rotY + rotX - rx) / denominator;
 
-            frontLeftMotor.setPower(frontLeftPower * speed);
-            backLeftMotor.setPower(backLeftPower * speed);
-            frontRightMotor.setPower(frontRightPower * speed);
-            backRightMotor.setPower(backRightPower * speed);
+            hdw.frontLeftMotor.setPower(frontLeftPower * speed);
+            hdw.backLeftMotor.setPower(backLeftPower * speed);
+            hdw.frontRightMotor.setPower(frontRightPower * speed);
+            hdw.backRightMotor.setPower(backRightPower * speed);
         }
     }
 }
