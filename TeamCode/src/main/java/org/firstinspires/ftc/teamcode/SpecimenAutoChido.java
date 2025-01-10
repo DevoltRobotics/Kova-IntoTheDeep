@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.arcrobotics.ftclib.command.Command;
 import com.arcrobotics.ftclib.command.CommandScheduler;
 import com.arcrobotics.ftclib.command.InstantCommand;
 import com.arcrobotics.ftclib.command.ParallelCommandGroup;
@@ -32,7 +33,7 @@ public class SpecimenAutoChido extends OpMode {
     private Timer actionTimer;
     private Timer opmodeTimer;
 
-    private int pathState;
+    private Command pathCommand;
 
     private final Pose startPose = new Pose(9, 56, Math.toRadians(0)); //ToDo Checar orientacion
 
@@ -86,18 +87,6 @@ public class SpecimenAutoChido extends OpMode {
         waitForHumanSpecimen.setConstantHeadingInterpolation(humanSample.getHeading());
 
         PathChain pathChain = follower.pathBuilder()
-                .addTemporalCallback(0, () ->
-                        hardware.liftWristSubsystem.liftWristToPosCmd(1950).schedule()
-                )
-                .addTemporalCallback(0.8, () ->
-                        hardware.liftSubsystem.liftToPosCmd(-950).schedule()
-                )
-                .addPath(scorePreload)
-
-                .addPath(goToSpecimen1)
-                .addPath(leaveSample2)
-                .addPath(waitForHumanSpecimen)
-
                 .addPath(new BezierLine(new Point(sample1), new Point(sample2)))
                 .setConstantHeadingInterpolation(humanSample.getHeading())
                 .addPath(new BezierLine(new Point(humanSample), new Point(sample1)))
@@ -105,6 +94,15 @@ public class SpecimenAutoChido extends OpMode {
                 .addPath(new BezierLine(new Point(sample1), new Point(humanSample)))
                 .setConstantHeadingInterpolation(humanSample.getHeading())
                 .build();
+
+        pathCommand = new SequentialCommandGroup(
+                new ParallelDeadlineGroup(
+                        pedroSubsystem.followPathCmd(scorePreload),
+
+                        hardware.liftWristSubsystem.liftWristToPosCmd(1950),
+                        hardware.liftSubsystem.liftToPosCmd(-950)
+                )
+        );
      }
 
     /** This is the main loop of the OpMode, it will run repeatedly after clicking "Play". **/
@@ -141,26 +139,19 @@ public class SpecimenAutoChido extends OpMode {
         hardware.wristSubsystem.wristUpCmd().schedule();
     }
 
-    /** This method is called continuously after Init while waiting for "play". **/
-    @Override
-    public void init_loop() {
-        CommandScheduler.getInstance().run();
-    }
 
     /** This method is called once at the start of the OpMode.
      * It runs all the setup actions, including building paths and starting the path system **/
     @Override
     public void start() {
         opmodeTimer.resetTimer();
+        pathCommand.schedule();
+    }
 
-        new SequentialCommandGroup(
-                new ParallelDeadlineGroup(
-                        pedroSubsystem.followPathCmd(scorePreload),
-
-                        hardware.liftWristSubsystem.liftWristToPosCmd(1950),
-                        hardware.liftSubsystem.liftToPosCmd(-950)
-                )
-        ).schedule();
+    /** This method is called continuously after Init while waiting for "play". **/
+    @Override
+    public void init_loop() {
+        CommandScheduler.getInstance().run();
     }
 
     /** We do not use this because everything should automatically disable **/
