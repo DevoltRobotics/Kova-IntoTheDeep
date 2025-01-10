@@ -1,6 +1,10 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.arcrobotics.ftclib.command.CommandScheduler;
+import com.arcrobotics.ftclib.command.InstantCommand;
+import com.arcrobotics.ftclib.command.ParallelCommandGroup;
+import com.arcrobotics.ftclib.command.ParallelDeadlineGroup;
+import com.arcrobotics.ftclib.command.SequentialCommandGroup;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.localization.Pose;
 import com.pedropathing.pathgen.BezierCurve;
@@ -12,47 +16,21 @@ import com.pedropathing.util.Timer;
 import com.pedropathing.util.Constants;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import  com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.Servo;
+
+import org.firstinspires.ftc.teamcode.subsystem.PedroSubsystem;
 
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
 
 @Autonomous(name = "Example Auto Blue", group = "PedroPath")
-public class ExampleBucketAuto extends OpMode {
+public class SpecimenAutoChido extends OpMode {
 
-    DcMotor slidesMotor;
-    DcMotor centralMotor;
-    Servo servoGarra, servoWrist;
-
-    public void initHardware(){
-        slidesMotor = hardwareMap.dcMotor.get("MR");
-        centralMotor = hardwareMap.dcMotor.get("C");
-        servoGarra = hardwareMap.servo.get("CG");
-        servoWrist = hardwareMap.servo.get("CM");
-
-        slidesMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        centralMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-
-        slidesMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        slidesMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-
-        centralMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        centralMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-
-        centralMotor.setTargetPosition(0);
-        centralMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-
-        slidesMotor.setTargetPosition(0);
-        slidesMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-
-
-
-    }
-
+    Hardware hardware = new Hardware();
+    PedroSubsystem pedroSubsystem;
 
     private Follower follower;
-    private Timer pathTimer, actionTimer, opmodeTimer;
+    private Timer actionTimer;
+    private Timer opmodeTimer;
 
     private int pathState;
 
@@ -75,7 +53,6 @@ public class ExampleBucketAuto extends OpMode {
 
 
     private Path scorePreload, goToSpecimen1, leaveSample2,waitForHumanSpecimen;
-    private PathChain pathChain;
 
     /** Build the paths for the auto (adds, for example, constant/linear headings while doing paths)
      * It is necessary to do this so that all the paths are built before the auto starts. **/
@@ -108,7 +85,19 @@ public class ExampleBucketAuto extends OpMode {
         waitForHumanSpecimen = new Path(new BezierLine(new Point(humanSample), new Point(waitForHuman)));
         waitForHumanSpecimen.setConstantHeadingInterpolation(humanSample.getHeading());
 
-        goToSpecimen2 = follower.pathBuilder()
+        PathChain pathChain = follower.pathBuilder()
+                .addTemporalCallback(0, () ->
+                        hardware.liftWristSubsystem.liftWristToPosCmd(1950).schedule()
+                )
+                .addTemporalCallback(0.8, () ->
+                        hardware.liftSubsystem.liftToPosCmd(-950).schedule()
+                )
+                .addPath(scorePreload)
+
+                .addPath(goToSpecimen1)
+                .addPath(leaveSample2)
+                .addPath(waitForHumanSpecimen)
+
                 .addPath(new BezierLine(new Point(sample1), new Point(sample2)))
                 .setConstantHeadingInterpolation(humanSample.getHeading())
                 .addPath(new BezierLine(new Point(humanSample), new Point(sample1)))
@@ -121,9 +110,6 @@ public class ExampleBucketAuto extends OpMode {
     /** This is the main loop of the OpMode, it will run repeatedly after clicking "Play". **/
     @Override
     public void loop() {
-
-        // These loop the movements of the robot
-        follower.update();
         CommandScheduler.getInstance().run();
 
         // Feedback to Driver Hub
@@ -137,17 +123,22 @@ public class ExampleBucketAuto extends OpMode {
     /** This method is called once at the init of the OpMode. **/
     @Override
     public void init() {
-        pathTimer = new Timer();
+        hardware.init(hardwareMap, true);
+
         opmodeTimer = new Timer();
         opmodeTimer.resetTimer();
 
         Constants.setConstants(FConstants.class, LConstants.class);
         follower = new Follower(hardwareMap);
         follower.setStartingPose(startPose);
-        follower.followPath(pathChain);
+
+        pedroSubsystem = new PedroSubsystem(follower);
+        CommandScheduler.getInstance().registerSubsystem(pedroSubsystem);
 
         buildPaths();
-        initHardware();
+
+        hardware.clawSubsystem.closeCmd().schedule();
+        hardware.wristSubsystem.wristUpCmd().schedule();
     }
 
     /** This method is called continuously after Init while waiting for "play". **/
@@ -161,6 +152,15 @@ public class ExampleBucketAuto extends OpMode {
     @Override
     public void start() {
         opmodeTimer.resetTimer();
+
+        new SequentialCommandGroup(
+                new ParallelDeadlineGroup(
+                        pedroSubsystem.followPathCmd(scorePreload),
+
+                        hardware.liftWristSubsystem.liftWristToPosCmd(1950),
+                        hardware.liftSubsystem.liftToPosCmd(-950)
+                )
+        ).schedule();
     }
 
     /** We do not use this because everything should automatically disable **/
