@@ -40,5 +40,10 @@ public class WristSubsystem extends SubsystemBase {
         public void execute() {
             wrist.setPosition(position);
         }
+
+        @Override
+        public boolean isFinished() {
+            return true;
+        }
     }
 }

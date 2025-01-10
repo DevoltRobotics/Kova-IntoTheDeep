@@ -6,6 +6,7 @@ import com.arcrobotics.ftclib.command.InstantCommand;
 import com.arcrobotics.ftclib.command.ParallelCommandGroup;
 import com.arcrobotics.ftclib.command.ParallelDeadlineGroup;
 import com.arcrobotics.ftclib.command.SequentialCommandGroup;
+import com.arcrobotics.ftclib.command.WaitCommand;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.localization.Pose;
 import com.pedropathing.pathgen.BezierCurve;
@@ -23,7 +24,7 @@ import org.firstinspires.ftc.teamcode.subsystem.PedroSubsystem;
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
 
-@Autonomous(name = "Example Auto Blue", group = "PedroPath")
+@Autonomous(group = "###PedroPath")
 public class SpecimenAutoChido extends OpMode {
 
     Hardware hardware = new Hardware();
@@ -37,7 +38,7 @@ public class SpecimenAutoChido extends OpMode {
 
     private final Pose startPose = new Pose(9, 56, Math.toRadians(0)); //ToDo Checar orientacion
 
-    private final Pose scorePose = new Pose(37, 69, Math.toRadians(0));
+    private final Pose scorePose = new Pose(35.5, 69, Math.toRadians(0));
 
     private final Pose parkPose = new Pose(9, 33, Math.toRadians(0));
 
@@ -53,7 +54,7 @@ public class SpecimenAutoChido extends OpMode {
     private final Pose scoreTosampleControl2 = new Pose(65 ,49, Math.toRadians(180));
 
 
-    private Path scorePreload, goToSpecimen1, leaveSample2,waitForHumanSpecimen;
+    private Path scorePreload, goToSpecimen1, leaveSample2, waitForHumanSpecimen;
 
     /** Build the paths for the auto (adds, for example, constant/linear headings while doing paths)
      * It is necessary to do this so that all the paths are built before the auto starts. **/
@@ -86,22 +87,30 @@ public class SpecimenAutoChido extends OpMode {
         waitForHumanSpecimen = new Path(new BezierLine(new Point(humanSample), new Point(waitForHuman)));
         waitForHumanSpecimen.setConstantHeadingInterpolation(humanSample.getHeading());
 
-        PathChain pathChain = follower.pathBuilder()
-                .addPath(new BezierLine(new Point(sample1), new Point(sample2)))
-                .setConstantHeadingInterpolation(humanSample.getHeading())
-                .addPath(new BezierLine(new Point(humanSample), new Point(sample1)))
-                .setConstantHeadingInterpolation(humanSample.getHeading())
-                .addPath(new BezierLine(new Point(sample1), new Point(humanSample)))
-                .setConstantHeadingInterpolation(humanSample.getHeading())
-                .build();
-
         pathCommand = new SequentialCommandGroup(
                 new ParallelDeadlineGroup(
                         pedroSubsystem.followPathCmd(scorePreload),
 
                         hardware.liftWristSubsystem.liftWristToPosCmd(1950),
                         hardware.liftSubsystem.liftToPosCmd(-950)
-                )
+                ),
+
+                new WaitCommand(500),
+
+                hardware.wristSubsystem.wristDownCmd(),
+                new WaitCommand(800),
+                hardware.clawSubsystem.openCmd(),
+                hardware.wristSubsystem.wristUpCmd(),
+
+                new ParallelDeadlineGroup(
+                        pedroSubsystem.followPathCmd(goToSpecimen1),
+
+                        hardware.liftWristSubsystem.liftWristToPosCmd(0),
+                        hardware.liftSubsystem.liftToPosCmd(0)
+                ),
+
+                pedroSubsystem.followPathCmd(leaveSample2),
+                pedroSubsystem.followPathCmd(waitForHumanSpecimen)
         );
      }
 
@@ -111,7 +120,6 @@ public class SpecimenAutoChido extends OpMode {
         CommandScheduler.getInstance().run();
 
         // Feedback to Driver Hub
-        telemetry.addData("path state", pathState);
         telemetry.addData("x", follower.getPose().getX());
         telemetry.addData("y", follower.getPose().getY());
         telemetry.addData("heading", follower.getPose().getHeading());

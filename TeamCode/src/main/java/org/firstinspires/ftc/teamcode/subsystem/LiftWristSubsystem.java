@@ -14,22 +14,23 @@ public class LiftWristSubsystem extends SubsystemBase {
         this.liftWristMotor = liftWristMotor;
     }
 
-    public Command liftWristToPosCmd(double position) {
+    public Command liftWristToPosCmd(int position) {
         return new LiftWristToPosCmd(position);
     }
 
     class LiftWristToPosCmd extends CommandBase {
-        double position;
+        int position;
 
-        public LiftWristToPosCmd(double position) {
+        public LiftWristToPosCmd(int position) {
             this.position = position;
             addRequirements(LiftWristSubsystem.this);
         }
 
         @Override
         public void execute() {
-            liftWristMotor.setTargetPosition(0);
+            liftWristMotor.setTargetPosition(position);
             liftWristMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            liftWristMotor.setPower(1);
         }
 
         @Override

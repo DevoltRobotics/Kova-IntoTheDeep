@@ -33,6 +33,11 @@ public class ClawSubsystem extends SubsystemBase {
         public void execute() {
             claw.setPosition(position);
         }
+
+        @Override
+        public boolean isFinished() {
+            return true;
+        }
     }
 
 
