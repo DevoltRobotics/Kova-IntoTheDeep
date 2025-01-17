@@ -89,8 +89,9 @@ public class KovaTeleOpCentric extends LinearOpMode {
 
             hdw.servoWrist.setPosition(hdw.servoWrist.getPosition() - ((gamepad2.right_trigger - gamepad2.left_trigger) * 0.05));
 
+
             if (hdw.centralMotor.getCurrentPosition() < 260) {
-                //rielesTargetPos = Range.clip(rielesTargetPos, -300, 2575);
+                // 333rielesTargetPos = Range.clip(rielesTargetPos, -200, 3900);
                 telemetry.addLine("extension limitada");
             }
 
@@ -114,8 +115,8 @@ public class KovaTeleOpCentric extends LinearOpMode {
                 hdw.rightCM.setPower(-gamepad1.left_trigger);
 
                 if (gamepad1.a){
-                    hdw.leftC.setPosition(0);
-                    hdw.rightC.setPosition(1);
+                    hdw.leftC.setPosition(0.5);
+                    hdw.rightC.setPosition(0.5);
                 }else if(gamepad1.y){
                     hdw.leftC.setPosition(0.6);
                     hdw.rightC.setPosition(0.4);
