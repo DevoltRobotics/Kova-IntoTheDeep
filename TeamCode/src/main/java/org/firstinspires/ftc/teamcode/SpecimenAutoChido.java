@@ -39,12 +39,12 @@ public class SpecimenAutoChido extends OpMode {
 
     private final Pose startPose = new Pose(9, 56, Math.toRadians(0));
 
-    private final Pose scorePose = new Pose(37, 69, Math.toRadians(0));
+    private final Pose scorePose = new Pose(36, 69, Math.toRadians(0));
     private final Pose scorePose2 = new Pose(37, 69, Math.toRadians(0));
 
     private final Pose parkPose = new Pose(9, 33, Math.toRadians(0));
 
-    private final Pose sample1 = new Pose(59, 24, Math.toRadians(180));
+    private final Pose sample1 = new Pose(59, 28, Math.toRadians(180));
     private final Pose sample2 = new Pose(59, 10, Math.toRadians(180));
     private final Pose sample3 = new Pose(59, 6, Math.toRadians(90));
 
@@ -123,7 +123,7 @@ public class SpecimenAutoChido extends OpMode {
                 new ParallelDeadlineGroup(
                         pedroSubsystem.followPathCmd(scorePreload),
 
-                        hardware.liftWristSubsystem.liftWristToPosCmd(2000),
+                        hardware.liftWristSubsystem.liftWristToPosCmd(1500),
                         hardware.liftSubsystem.liftToPosCmd(-1350),
                         hardware.wristSubsystem.wristUpCmd()
                 ),
@@ -187,7 +187,8 @@ public class SpecimenAutoChido extends OpMode {
                 hardware.clawSubsystem.openCmd(),
                 hardware.wristSubsystem.wristUpCmd(),
 
-                new ParallelDeadlineGroup(
+                new ParallelDeadlineGroup( //goes to park
+
                         pedroSubsystem.followPathCmd(scoreToPark),
 
                         hardware.liftWristSubsystem.liftWristToPosCmd(0),
