@@ -1,8 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.arcrobotics.ftclib.command.CommandScheduler;
-import com.arcrobotics.ftclib.command.SequentialCommandGroup;
-import com.arcrobotics.ftclib.command.WaitCommand;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.localization.Pose;
 import com.pedropathing.pathgen.BezierCurve;
@@ -14,8 +12,6 @@ import com.pedropathing.util.Timer;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.Servo;
 
 @Autonomous(name = "PedroPathAuto", group = "PedroPath")
 @Disabled
@@ -62,7 +58,7 @@ public class SpecimenAuto extends OpMode {
                     hardware.liftWristSubsystem.liftWristToPosCmd(1950).schedule();
                 })
                 .addTemporalCallback(0.8, () -> {
-                    hardware.liftSubsystem.liftToPosCmd(-950).schedule();
+                    hardware.slideSubsystem.liftToPosCmd(-950).schedule();
                 })
 
                 .addPath(scorePreload)

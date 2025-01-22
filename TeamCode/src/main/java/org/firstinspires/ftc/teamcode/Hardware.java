@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode;
 
-import com.arcrobotics.ftclib.command.Command;
 import com.arcrobotics.ftclib.command.CommandScheduler;
 import com.qualcomm.hardware.rev.RevTouchSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -9,7 +8,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.subsystem.ClawSubsystem;
-import org.firstinspires.ftc.teamcode.subsystem.LiftSubsystem;
+import org.firstinspires.ftc.teamcode.subsystem.SlideSubsystem;
 import org.firstinspires.ftc.teamcode.subsystem.LiftWristSubsystem;
 import org.firstinspires.ftc.teamcode.subsystem.WristSubsystem;
 
@@ -34,7 +33,7 @@ public class Hardware {
 
     public ClawSubsystem clawSubsystem;
     public WristSubsystem wristSubsystem;
-    public LiftSubsystem liftSubsystem;
+    public SlideSubsystem slideSubsystem;
     public LiftWristSubsystem liftWristSubsystem;
 
     public void init(HardwareMap hardwareMap) {
@@ -87,12 +86,12 @@ public class Hardware {
 
         clawSubsystem = new ClawSubsystem(servoGarra);
         wristSubsystem = new WristSubsystem(servoWrist);
-        liftSubsystem = new LiftSubsystem(slidesMotor);
+        slideSubsystem = new SlideSubsystem(slidesMotor);
         liftWristSubsystem = new LiftWristSubsystem(centralMotor);
 
         CommandScheduler.getInstance().registerSubsystem(clawSubsystem);
         CommandScheduler.getInstance().registerSubsystem(wristSubsystem);
-        CommandScheduler.getInstance().registerSubsystem(liftSubsystem);
+        CommandScheduler.getInstance().registerSubsystem(slideSubsystem);
         CommandScheduler.getInstance().registerSubsystem(liftWristSubsystem);
     }
 

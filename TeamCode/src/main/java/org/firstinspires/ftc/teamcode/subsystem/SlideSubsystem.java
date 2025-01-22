@@ -7,14 +7,14 @@ import com.arcrobotics.ftclib.command.SubsystemBase;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
 @Config
-public class LiftSubsystem extends SubsystemBase {
+public class SlideSubsystem extends SubsystemBase {
 
     public static final double rielesP = 0.004;
     public static final double rielesF = 0.09;
 
     DcMotor liftMotor;
 
-    public LiftSubsystem(DcMotor liftMotor) {
+    public SlideSubsystem(DcMotor liftMotor) {
         this.liftMotor = liftMotor;
     }
 
@@ -27,7 +27,7 @@ public class LiftSubsystem extends SubsystemBase {
 
         public LiftToPosCmd(double position) {
             this.position = position;
-            addRequirements(LiftSubsystem.this);
+            addRequirements(SlideSubsystem.this);
         }
 
         @Override

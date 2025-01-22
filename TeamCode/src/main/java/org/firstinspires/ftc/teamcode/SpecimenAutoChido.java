@@ -2,7 +2,6 @@ package org.firstinspires.ftc.teamcode;
 
 import com.arcrobotics.ftclib.command.Command;
 import com.arcrobotics.ftclib.command.CommandScheduler;
-import com.arcrobotics.ftclib.command.InstantCommand;
 import com.arcrobotics.ftclib.command.ParallelCommandGroup;
 import com.arcrobotics.ftclib.command.ParallelDeadlineGroup;
 import com.arcrobotics.ftclib.command.ParallelRaceGroup;
@@ -13,12 +12,11 @@ import com.pedropathing.localization.Pose;
 import com.pedropathing.pathgen.BezierCurve;
 import com.pedropathing.pathgen.BezierLine;
 import com.pedropathing.pathgen.Path;
-import com.pedropathing.pathgen.PathChain;
 import com.pedropathing.pathgen.Point;
 import com.pedropathing.util.Timer;
 import com.pedropathing.util.Constants;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import  com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.firstinspires.ftc.teamcode.subsystem.PedroSubsystem;
 
@@ -39,28 +37,34 @@ public class SpecimenAutoChido extends OpMode {
 
     private final Pose startPose = new Pose(9, 56, Math.toRadians(0));
 
-    private final Pose scorePose = new Pose(36, 69, Math.toRadians(0));
-    private final Pose scorePose2 = new Pose(37, 69, Math.toRadians(0));
+    private final Pose scorePose = new Pose(34.5, 69, Math.toRadians(0));
 
     private final Pose parkPose = new Pose(9, 33, Math.toRadians(0));
 
-    private final Pose sample1 = new Pose(59, 28, Math.toRadians(180));
-    private final Pose sample2 = new Pose(59, 10, Math.toRadians(180));
-    private final Pose sample3 = new Pose(59, 6, Math.toRadians(90));
-
-    private final Pose waitForHuman = new Pose(28, 22, Math.toRadians(180));
-
-    private final Pose humanSample = new Pose(17, 25, Math.toRadians(180));
-
+    private final Pose sample1 = new Pose(59, 23, Math.toRadians(180));
     private final Pose scoreTosampleControl1 = new Pose(4,19, Math.toRadians(180));
     private final Pose scoreTosampleControl2 = new Pose(65 ,49, Math.toRadians(180));
+
+    private final Pose sample2 = new Pose(57, 12, Math.toRadians(180));
+    private final Pose humanToSample2Control1 = new Pose(67,32, Math.toRadians(180));
+
+    private final Pose scorePose2 = new Pose(37, 69, Math.toRadians(0));
+
+
+    private final Pose sample3 = new Pose(59, 6, Math.toRadians(90));
+
+    // private final Pose waitForHuman = new Pose(28, 22, Math.toRadians(180));
+
+    private final Pose humanSample = new Pose(17, 25, Math.toRadians(180));
 
     private final Pose grabSpecimen = new Pose(14.5,22,Math.toRadians(180));
 
     private final Pose park = new Pose(14.5,22,Math.toRadians(180));
 
+    private final Pose scoreToGrabControl1 = new Pose(35,18,Math.toRadians(180));
 
-    private Path linearGoToSample1,scorePreload, goToSpecimen1, leaveSample1, leaveSample2, waitForHumanSpecimen, goToSpecimen2from1,specimen2ToGrab, grabToScore, grabToScore2, scoreToGrab, scoreToPark;
+
+    private Path score2ToGrabCurve, humanToSample2,scorePreload, goToSpecimen1, leaveSample1, leaveSample2, grabToScore, scoreToGrab, scoreToPark;
 
     /** Build the paths for the auto (adds, for example, constant/linear headings while doing paths)
      * It is necessary to do this so that all the paths are built before the auto starts. **/
@@ -87,29 +91,20 @@ public class SpecimenAutoChido extends OpMode {
         goToSpecimen1 = new Path(new BezierCurve(new Point (scorePose), new Point(scoreTosampleControl1), new Point(scoreTosampleControl2), new Point(sample1)));
         goToSpecimen1.setLinearHeadingInterpolation(scorePose.getHeading(), sample1.getHeading());
 
-        linearGoToSample1 = new Path(new BezierLine(new Point(humanSample), new Point(sample1)));
-        linearGoToSample1.setConstantHeadingInterpolation(humanSample.getHeading());
-
         leaveSample1 = new Path(new BezierLine(new Point(sample1), new Point(humanSample)));
         leaveSample1.setConstantHeadingInterpolation(humanSample.getHeading());
 
-        leaveSample2 = new Path(new BezierLine(new Point(sample2), new Point(humanSample)));
+        humanToSample2 = new Path(new BezierCurve(new Point(humanSample), new Point(humanToSample2Control1), new Point(sample2)));
+        humanToSample2.setConstantHeadingInterpolation(humanSample.getHeading());
+
+        leaveSample2 = new Path(new BezierLine(new Point(sample2), new Point(grabSpecimen)));
         leaveSample2.setConstantHeadingInterpolation(humanSample.getHeading());
 
-        goToSpecimen2from1 = new Path(new BezierLine(new Point(sample1), new Point (sample2)));
-        goToSpecimen2from1.setConstantHeadingInterpolation(sample1.getHeading());
+        grabToScore = new Path(new BezierLine(new Point(grabSpecimen), new Point(scorePose2)));
+        grabToScore.setLinearHeadingInterpolation(grabSpecimen.getHeading(), scorePose2.getHeading());
 
-        waitForHumanSpecimen = new Path(new BezierLine(new Point(humanSample), new Point(waitForHuman)));
-        waitForHumanSpecimen.setConstantHeadingInterpolation(humanSample.getHeading());
-
-        specimen2ToGrab = new Path(new BezierLine(new Point(sample2), new Point(grabSpecimen)));
-        specimen2ToGrab.setConstantHeadingInterpolation(sample2.getHeading());
-
-        grabToScore = new Path(new BezierLine(new Point(grabSpecimen), new Point(scorePose)));
-        grabToScore.setLinearHeadingInterpolation(grabSpecimen.getHeading(), scorePose.getHeading());
-
-        grabToScore2 = new Path(new BezierLine(new Point(grabSpecimen), new Point(scorePose2)));
-        grabToScore2.setLinearHeadingInterpolation(grabSpecimen.getHeading(), scorePose.getHeading());
+        score2ToGrabCurve = new Path(new BezierCurve(new Point(scorePose2), new Point(scoreToGrabControl1), new Point(grabSpecimen)));
+        score2ToGrabCurve.setLinearHeadingInterpolation(scorePose2.getHeading(), grabSpecimen.getHeading());
 
         scoreToGrab = new Path(new BezierLine(new Point(scorePose), new Point(grabSpecimen)));
         scoreToGrab.setLinearHeadingInterpolation(scorePose.getHeading(), grabSpecimen.getHeading());
@@ -124,7 +119,7 @@ public class SpecimenAutoChido extends OpMode {
                         pedroSubsystem.followPathCmd(scorePreload),
 
                         hardware.liftWristSubsystem.liftWristToPosCmd(1500),
-                        hardware.liftSubsystem.liftToPosCmd(-1350),
+                        hardware.slideSubsystem.liftToPosCmd(-1350),
                         hardware.wristSubsystem.wristUpCmd()
                 ),
 
@@ -135,7 +130,7 @@ public class SpecimenAutoChido extends OpMode {
 
                         hardware.wristSubsystem.wristDownCmd(),
                         hardware.liftWristSubsystem.liftWristToPosCmd(1200),
-                        hardware.liftSubsystem.liftToPosCmd(-1200)
+                        hardware.slideSubsystem.liftToPosCmd(-1200)
                 ),
 
                 new WaitCommand(1100),
@@ -148,52 +143,48 @@ public class SpecimenAutoChido extends OpMode {
                         pedroSubsystem.followPathCmd(goToSpecimen1),
 
                         hardware.liftWristSubsystem.liftWristToPosCmd(0),
-                        hardware.liftSubsystem.liftToPosCmd(0)
+                        hardware.slideSubsystem.liftToPosCmd(0)
                 ),
 
                 pedroSubsystem.followPathCmd(leaveSample1),
-                pedroSubsystem.followPathCmd(linearGoToSample1),
 
-
-                pedroSubsystem.followPathCmd(goToSpecimen2from1),
+                pedroSubsystem.followPathCmd(humanToSample2),
                 hardware.wristSubsystem.wristPosCmd(0.35), //FIXME Checar Coordenadas para agarrar
-                pedroSubsystem.followPathCmd(specimen2ToGrab),
+                pedroSubsystem.followPathCmd(leaveSample2),
 
-                /* Agarrar specimen del Human Player */
                 new WaitCommand(200),
                 hardware.clawSubsystem.closeCmd(),
                 new WaitCommand(450),
                 hardware.wristSubsystem.wristUpCmd(),
 
                 new ParallelDeadlineGroup(
-                        pedroSubsystem.followPathCmd(grabToScore2),
+                        pedroSubsystem.followPathCmd(grabToScore),
 
                         hardware.liftWristSubsystem.liftWristToPosCmd(2000),
-                        hardware.liftSubsystem.liftToPosCmd(-1450),
+                        hardware.slideSubsystem.liftToPosCmd(-1450),
                         hardware.wristSubsystem.wristUpCmd()
                 ),
 
-                new WaitCommand(500),
-
                 new ParallelRaceGroup(
-                        new WaitCommand(1100),
+                        new WaitCommand(800),
 
                         hardware.wristSubsystem.wristDownCmd(),
                         hardware.liftWristSubsystem.liftWristToPosCmd(700),
-                        hardware.liftSubsystem.liftToPosCmd(-1800)
+                        hardware.slideSubsystem.liftToPosCmd(-1800)
                 ),
 
                 new WaitCommand(1100),
                 hardware.clawSubsystem.openCmd(),
                 hardware.wristSubsystem.wristUpCmd(),
+                hardware.liftWristSubsystem.liftWristToPosCmd(0),
+                hardware.slideSubsystem.liftToPosCmd(0),
 
-                new ParallelDeadlineGroup( //goes to park
-
-                        pedroSubsystem.followPathCmd(scoreToPark),
-
-                        hardware.liftWristSubsystem.liftWristToPosCmd(0),
-                        hardware.liftSubsystem.liftToPosCmd(0)
-                )
+                new WaitCommand(200),
+                new ParallelCommandGroup(
+                        pedroSubsystem.followPathCmd(score2ToGrabCurve),
+                        hardware.wristSubsystem.wristMidCmd(),
+                        hardware.liftWristSubsystem.liftWristToPosCmd(0)
+                        )
         );
     }
 
