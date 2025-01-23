@@ -37,7 +37,7 @@ public class SpecimenAutoChido extends OpMode {
 
     private final Pose startPose = new Pose(9, 56, Math.toRadians(0));
 
-    private final Pose scorePose = new Pose(34.5, 69, Math.toRadians(0));
+    private final Pose scorePose = new Pose(36, 69, Math.toRadians(0));
 
     private final Pose parkPose = new Pose(9, 33, Math.toRadians(0));
 
@@ -45,10 +45,10 @@ public class SpecimenAutoChido extends OpMode {
     private final Pose scoreTosampleControl1 = new Pose(4,19, Math.toRadians(180));
     private final Pose scoreTosampleControl2 = new Pose(65 ,49, Math.toRadians(180));
 
-    private final Pose sample2 = new Pose(57, 12, Math.toRadians(180));
+    private final Pose sample2 = new Pose(57, 9, Math.toRadians(180));
     private final Pose humanToSample2Control1 = new Pose(67,32, Math.toRadians(180));
 
-    private final Pose scorePose2 = new Pose(37, 69, Math.toRadians(0));
+    private final Pose scorePose2 = new Pose(40, 69, Math.toRadians(0));
 
 
     private final Pose sample3 = new Pose(59, 6, Math.toRadians(90));
@@ -129,7 +129,7 @@ public class SpecimenAutoChido extends OpMode {
                         new WaitCommand(1100),
 
                         hardware.wristSubsystem.wristDownCmd(),
-                        hardware.liftWristSubsystem.liftWristToPosCmd(1200),
+                        hardware.liftWristSubsystem.liftWristToPosCmd(1000),
                         hardware.slideSubsystem.liftToPosCmd(-1200)
                 ),
 
@@ -169,7 +169,7 @@ public class SpecimenAutoChido extends OpMode {
                         new WaitCommand(800),
 
                         hardware.wristSubsystem.wristDownCmd(),
-                        hardware.liftWristSubsystem.liftWristToPosCmd(700),
+                        hardware.liftWristSubsystem.liftWristToPosCmd(300),
                         hardware.slideSubsystem.liftToPosCmd(-1800)
                 ),
 
@@ -183,7 +183,8 @@ public class SpecimenAutoChido extends OpMode {
                 new ParallelCommandGroup(
                         pedroSubsystem.followPathCmd(score2ToGrabCurve),
                         hardware.wristSubsystem.wristMidCmd(),
-                        hardware.liftWristSubsystem.liftWristToPosCmd(0)
+                        hardware.liftWristSubsystem.liftWristToPosCmd(0),
+                        hardware.slideSubsystem.liftToPosCmd(-200)
                         )
         );
     }
