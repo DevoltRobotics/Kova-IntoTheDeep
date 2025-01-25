@@ -37,7 +37,7 @@ public class SpecimenAutoChido extends OpMode {
 
     private final Pose startPose = new Pose(9, 56, Math.toRadians(0));
 
-    private final Pose scorePose = new Pose(36, 69, Math.toRadians(0));
+    private final Pose scorePose = new Pose(35, 69, Math.toRadians(0));
 
     private final Pose parkPose = new Pose(9, 33, Math.toRadians(0));
 
@@ -48,7 +48,7 @@ public class SpecimenAutoChido extends OpMode {
     private final Pose sample2 = new Pose(57, 9, Math.toRadians(180));
     private final Pose humanToSample2Control1 = new Pose(67,32, Math.toRadians(180));
 
-    private final Pose scorePose2 = new Pose(40, 69, Math.toRadians(0));
+    private final Pose scorePose2 = new Pose(39, 69, Math.toRadians(0));
 
 
     private final Pose sample3 = new Pose(59, 6, Math.toRadians(90));
@@ -106,6 +106,7 @@ public class SpecimenAutoChido extends OpMode {
         score2ToGrabCurve = new Path(new BezierCurve(new Point(scorePose2), new Point(scoreToGrabControl1), new Point(grabSpecimen)));
         score2ToGrabCurve.setLinearHeadingInterpolation(scorePose2.getHeading(), grabSpecimen.getHeading());
 
+
         scoreToGrab = new Path(new BezierLine(new Point(scorePose), new Point(grabSpecimen)));
         scoreToGrab.setLinearHeadingInterpolation(scorePose.getHeading(), grabSpecimen.getHeading());
 
@@ -118,7 +119,7 @@ public class SpecimenAutoChido extends OpMode {
                 new ParallelDeadlineGroup(
                         pedroSubsystem.followPathCmd(scorePreload),
 
-                        hardware.liftWristSubsystem.liftWristToPosCmd(1500),
+                        hardware.liftWristSubsystem.liftWristToPosCmd(1600),
                         hardware.slideSubsystem.liftToPosCmd(-1350),
                         hardware.wristSubsystem.wristUpCmd()
                 ),
@@ -174,18 +175,28 @@ public class SpecimenAutoChido extends OpMode {
                 ),
 
                 new WaitCommand(1100),
+
                 hardware.clawSubsystem.openCmd(),
                 hardware.wristSubsystem.wristUpCmd(),
-                hardware.liftWristSubsystem.liftWristToPosCmd(0),
-                hardware.slideSubsystem.liftToPosCmd(0),
 
-                new WaitCommand(200),
+                new WaitCommand(100),
+                hardware.wristSubsystem.wristMidCmd(),
+
+                new ParallelRaceGroup(
+                    pedroSubsystem.followPathCmd(score2ToGrabCurve),
+
+                    hardware.liftWristSubsystem.liftWristToPosCmd(0),
+                    hardware.slideSubsystem.liftToPosCmd(0)
+                ),
+
                 new ParallelCommandGroup(
-                        pedroSubsystem.followPathCmd(score2ToGrabCurve),
-                        hardware.wristSubsystem.wristMidCmd(),
                         hardware.liftWristSubsystem.liftWristToPosCmd(0),
-                        hardware.slideSubsystem.liftToPosCmd(-200)
-                        )
+                        hardware.slideSubsystem.liftToPosCmd(-200),
+                        hardware.clawSubsystem.closeCmd()
+                ),
+
+                new WaitCommand(500),
+                hardware.wristSubsystem.wristUpCmd()
         );
     }
 
@@ -198,6 +209,7 @@ public class SpecimenAutoChido extends OpMode {
         telemetry.addData("x", follower.getPose().getX());
         telemetry.addData("y", follower.getPose().getY());
         telemetry.addData("heading", follower.getPose().getHeading());
+        telemetry.addData("Follower Path", follower.getCurrentPath());
         telemetry.update();
     }
 
