@@ -64,7 +64,7 @@ public class KovaTeleOpCentric extends LinearOpMode {
                 hdw.centralMotor.setPower(0);
             } else {
                 hdw.centralMotor.setPower(1);
-                centroTargetPos += (int) (gamepad2.right_stick_y * 25);
+                centroTargetPos += (int) (-gamepad2.right_stick_y * 25);
             }
 
             if(gamepad2.b) {

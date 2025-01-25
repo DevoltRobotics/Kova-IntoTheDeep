@@ -60,7 +60,7 @@ public class PedroSubsystem extends SubsystemBase {
 
         @Override
         public void initialize() {
-            follower.followPath(path);
+            follower.followPath(path, true);
         }
 
         @Override

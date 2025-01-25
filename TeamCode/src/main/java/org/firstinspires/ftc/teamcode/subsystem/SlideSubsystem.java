@@ -18,7 +18,7 @@ public class SlideSubsystem extends SubsystemBase {
         this.liftMotor = liftMotor;
     }
 
-    public Command liftToPosCmd(double position) {
+    public Command slideToPosCmd(double position) {
         return new LiftToPosCmd(position);
     }
 

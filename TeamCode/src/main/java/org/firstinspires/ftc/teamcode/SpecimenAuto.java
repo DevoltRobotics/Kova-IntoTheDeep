@@ -58,7 +58,7 @@ public class SpecimenAuto extends OpMode {
                     hardware.liftWristSubsystem.liftWristToPosCmd(1950).schedule();
                 })
                 .addTemporalCallback(0.8, () -> {
-                    hardware.slideSubsystem.liftToPosCmd(-950).schedule();
+                    hardware.slideSubsystem.slideToPosCmd(-950).schedule();
                 })
 
                 .addPath(scorePreload)
