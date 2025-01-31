@@ -45,7 +45,7 @@ public class SpecimenAutoBlue extends OpMode {
     private final Pose sample2 = new Pose(57, 9, Math.toRadians(180));
     private final Pose humanToSample2Control1 = new Pose(67,32, Math.toRadians(180));
 
-    private final Pose scorePose2 = new Pose(37 , 69, Math.toRadians(0));
+    private final Pose scorePose2 = new Pose(37 , 60, Math.toRadians(0));
 
     private final Pose scorePose3 = new Pose(38.5 , 69, Math.toRadians(0));
 
@@ -229,7 +229,14 @@ public class SpecimenAutoBlue extends OpMode {
                 hardware.wristSubsystem.wristDownCmd(),
                 hardware.liftWristSubsystem.liftWristToPosCmd(300),
                 hardware.slideSubsystem.slideToPosCmd(-1800)
-            )
+            ),
+                new WaitCommand(1100),
+
+                hardware.clawSubsystem.openCmd(),
+                hardware.wristSubsystem.wristUpCmd(),
+
+                new WaitCommand(100),
+                hardware.wristSubsystem.wristMidCmd()
         );
     }
 

@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.subsystem.ClawSubsystem;
 import org.firstinspires.ftc.teamcode.subsystem.SlideSubsystem;
@@ -94,5 +95,23 @@ public class Hardware {
         CommandScheduler.getInstance().registerSubsystem(slideSubsystem);
         CommandScheduler.getInstance().registerSubsystem(liftWristSubsystem);
     }
+
+    public void servosUp() {
+        leftC.setPosition(0.3);
+        rightC.setPosition(0.7);
+    }
+
+    public void servosDown() {
+        ElapsedTime timer = new ElapsedTime();
+        leftC.setPosition(0.7);
+        rightC.setPosition(0.3);
+
+        timer.reset();
+        if (timer.seconds() > 0.2) {
+            leftC.getController().pwmDisable();
+        }
+    }
+
+
 
 }

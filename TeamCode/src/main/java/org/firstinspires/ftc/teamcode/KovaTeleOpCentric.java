@@ -12,9 +12,15 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.teamcode.subsystem.PIDFController;
 
 @TeleOp(name="Kova🎀 Centric", group="Main Teleop")
 public class KovaTeleOpCentric extends LinearOpMode {
+
+    public PIDFController.PIDCoefficients climbCoefficients = new PIDFController.PIDCoefficients(0.015, 0, 0.0017);
+
+    PIDFController controllerRight = new PIDFController(climbCoefficients);
+    PIDFController controllerLeft = new PIDFController(climbCoefficients);
 
     public static final double rielesP = 0.004;
     public static final double rielesF = 0.09;
@@ -26,6 +32,12 @@ public class KovaTeleOpCentric extends LinearOpMode {
     boolean colgada = false;
 
     ElapsedTime rielesPosTimer = new ElapsedTime();
+
+    ElapsedTime timerColgar = new ElapsedTime();
+
+    ElapsedTime subirServosTimer = new ElapsedTime();
+    boolean subirServos = false;
+
     @Override
     public void runOpMode() throws InterruptedException {
         Hardware hdw = new Hardware();
@@ -57,7 +69,6 @@ public class KovaTeleOpCentric extends LinearOpMode {
                 } else if (gamepad1.right_trigger < 0.5) {
                     speed = 1;
                 }
-            }
             rielesTargetPos += (int) (gamepad2.left_stick_y * 50);
 
             if(hdw.touchSensor.isPressed()){
@@ -109,17 +120,49 @@ public class KovaTeleOpCentric extends LinearOpMode {
             }
 
             if(colgada) {
-                hdw.leftCM.setPower(-gamepad1.right_trigger);
-                hdw.rightCM.setPower(gamepad1.right_trigger);
-                hdw.leftCM.setPower(gamepad1.left_trigger);
-                hdw.rightCM.setPower(-gamepad1.left_trigger);
+
+                boolean manualUp = Math.abs(gamepad1.right_trigger) > 0.5 ;
+                boolean manualDown = Math.abs(gamepad1.left_trigger) > 0.5 ;
+
+                if (manualUp || manualDown) {
+                    controllerRight.targetPosition = hdw.slidesMotor.getCurrentPosition();
+                    controllerLeft.targetPosition = hdw.slidesMotor.getCurrentPosition();
+
+                    hdw.leftCM.setPower(-gamepad1.right_trigger);
+                    hdw.rightCM.setPower(gamepad1.right_trigger);
+                    hdw.leftCM.setPower(gamepad1.left_trigger);
+                    hdw.rightCM.setPower(-gamepad1.left_trigger);
+                } else {
+                    hdw.leftCM.setPower(controllerLeft.update(hdw.leftCM.getCurrentPosition()));
+                    hdw.rightCM.setPower(controllerRight.update(hdw.rightCM.getCurrentPosition()));
+                }
+
+                if (gamepad1.right_bumper) {
+                    controllerRight.targetPosition = -5700;
+                    controllerLeft.targetPosition = 5700;
+
+                    subirServos = true;
+                    subirServosTimer.reset();
+
+
+                } else if (gamepad1.left_bumper) {
+                    controllerRight.targetPosition = 0;
+                    controllerLeft.targetPosition = 0;
+                }
+
+                if (subirServos && subirServosTimer.seconds() > 2) {
+                    hdw.servosUp();
+                    subirServos = false;
+                }
 
                 if (gamepad1.a){
-                    hdw.leftC.setPosition(0.5);
-                    hdw.rightC.setPosition(0.5);
-                }else if(gamepad1.y){
-                    hdw.leftC.setPosition(0.6);
-                    hdw.rightC.setPosition(0.4);
+                    hdw.servosDown();
+
+                } else if (gamepad1.y) {
+                    hdw.servosUp();
+
+                }
+
                 }else if (gamepad1.b){
                     hdw.leftC.getController().pwmDisable();
                     hdw.rightC.getController().pwmDisable();
@@ -129,8 +172,9 @@ public class KovaTeleOpCentric extends LinearOpMode {
                 }
             }
 
-            if(gamepad1.dpad_up){
+            if(gamepad1.dpad_up && timerColgar.seconds() > 0.2){
                 colgada = !colgada;
+                timerColgar.reset();
             }
 
 
@@ -175,3 +219,4 @@ public class KovaTeleOpCentric extends LinearOpMode {
         }
     }
 }
+
