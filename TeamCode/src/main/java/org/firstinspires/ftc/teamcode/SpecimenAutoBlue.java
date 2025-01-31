@@ -2,7 +2,6 @@ package org.firstinspires.ftc.teamcode;
 
 import com.arcrobotics.ftclib.command.Command;
 import com.arcrobotics.ftclib.command.CommandScheduler;
-import com.arcrobotics.ftclib.command.ParallelCommandGroup;
 import com.arcrobotics.ftclib.command.ParallelDeadlineGroup;
 import com.arcrobotics.ftclib.command.ParallelRaceGroup;
 import com.arcrobotics.ftclib.command.SequentialCommandGroup;
@@ -24,7 +23,7 @@ import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
 
 @Autonomous(group = "###PedroPath")
-public class SpecimenAutoChido extends OpMode {
+public class SpecimenAutoBlue extends OpMode {
 
     Hardware hardware = new Hardware();
     PedroSubsystem pedroSubsystem;
@@ -50,11 +49,13 @@ public class SpecimenAutoChido extends OpMode {
 
     private final Pose scorePose3 = new Pose(38.5 , 69, Math.toRadians(0));
 
-    private final Pose scorePose4 = new Pose(38.5 , 69, Math.toRadians(0));
+    private final Pose scorePose4 = new Pose(38.5 , 66, Math.toRadians(0));
 
     private final Pose humanSample = new Pose(17, 25, Math.toRadians(180));
 
     private final Pose grabSpecimen = new Pose(14.5,22,Math.toRadians(180));
+    private final Pose grabSpecimen2 = new Pose(16,22,Math.toRadians(180));
+
 
     private final Pose park = new Pose(14.5,22,Math.toRadians(180));
 
@@ -66,21 +67,6 @@ public class SpecimenAutoChido extends OpMode {
     /** Build the paths for the auto (adds, for example, constant/linear headings while doing paths)
      * It is necessary to do this so that all the paths are built before the auto starts. **/
     public void buildPaths() {
-
-        /* There are two major types of paths components: BezierCurves and BezierLines.
-         *    * BezierCurves are curved, and require >= 3 points. There are the start and end points, and the control points.
-         *    - Control points manipulate the curve between the start and end points.
-         *    - A good visualizer for this is [this](https://pedro-path-generator.vercel.app/).
-         *    * BezierLines are straight, and require 2 points. There are the start and end points.
-         * Paths have can have heading interpolation: Constant, Linear, or Tangential
-         *    * Linear heading interpolation:
-         *    - Pedro will slowly change the heading of the robot from the startHeading to the endHeading over the course of the entire path.
-         *    * Constant Heading Interpolation:
-         *    - Pedro will maintain one heading throughout the entire path.
-         *    * Tangential Heading Interpolation:
-         *    - Pedro will follows the angle of the path such that the robot is always driving forward when it follows the path.
-         * PathChains hold Path(s) within it and are able to hold their end point, meaning that they will holdPoint until another path is followed.
-         * Here is a explanation of the difference between Paths and PathChains <https://pedropathing.com/commonissues/pathtopathchain.html> */
 
         scorePreload = new Path(new BezierLine(new Point(startPose), new Point(scorePose)));
         scorePreload.setConstantHeadingInterpolation(startPose.getHeading());
@@ -100,7 +86,7 @@ public class SpecimenAutoChido extends OpMode {
         grabToScore = new Path(new BezierLine(new Point(grabSpecimen), new Point(scorePose2)));
         grabToScore.setLinearHeadingInterpolation(grabSpecimen.getHeading(), scorePose2.getHeading());
 
-        score2ToGrabCurve = new Path(new BezierCurve(new Point(scorePose2), new Point(scoreToGrabControl1), new Point(grabSpecimen)));
+        score2ToGrabCurve = new Path(new BezierCurve(new Point(scorePose2), new Point(scoreToGrabControl1), new Point(grabSpecimen2)));
         score2ToGrabCurve.setLinearHeadingInterpolation(scorePose2.getHeading(), grabSpecimen.getHeading());
 
         grabToScore2 = new Path(new BezierLine(new Point(grabSpecimen), new Point(scorePose3)));
@@ -125,8 +111,6 @@ public class SpecimenAutoChido extends OpMode {
                         hardware.slideSubsystem.slideToPosCmd(-1350),
                         hardware.wristSubsystem.wristUpCmd()
                 ),
-
-                new WaitCommand(500),
 
                 new ParallelRaceGroup(
                         new WaitCommand(1100),
@@ -154,8 +138,6 @@ public class SpecimenAutoChido extends OpMode {
                 pedroSubsystem.followPathCmd(humanToSample2),
                 hardware.wristSubsystem.wristPosCmd(0.35), //FIXME Checar Coordenadas para agarrar
                 pedroSubsystem.followPathCmd(leaveSample2),
-
-                new WaitCommand(200),
                 hardware.clawSubsystem.closeCmd(),
                 new WaitCommand(450),
                 hardware.wristSubsystem.wristUpCmd(),
@@ -240,7 +222,14 @@ public class SpecimenAutoChido extends OpMode {
                         hardware.liftWristSubsystem.liftWristToPosCmd(2000),
                         hardware.slideSubsystem.slideToPosCmd(-1450),
                         hardware.wristSubsystem.wristUpCmd()
-                )
+                ),
+                new ParallelRaceGroup(
+                new WaitCommand(500),
+
+                hardware.wristSubsystem.wristDownCmd(),
+                hardware.liftWristSubsystem.liftWristToPosCmd(300),
+                hardware.slideSubsystem.slideToPosCmd(-1800)
+            )
         );
     }
 
