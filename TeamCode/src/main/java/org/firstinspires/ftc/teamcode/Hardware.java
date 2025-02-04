@@ -61,6 +61,12 @@ public class Hardware {
         leftCM = hardwareMap.dcMotor.get("cl");
         rightCM = hardwareMap.dcMotor.get("cr");
 
+        leftCM.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        leftCM.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        rightCM.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        rightCM.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
         touchSensor = hardwareMap.get(RevTouchSensor.class,"TS");
 
         slidesMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);

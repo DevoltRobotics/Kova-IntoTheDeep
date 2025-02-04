@@ -33,13 +33,15 @@ public class KovaTeleOpCentric extends LinearOpMode {
 
     ElapsedTime rielesPosTimer = new ElapsedTime();
 
-    ElapsedTime timerColgar = new ElapsedTime();
 
     ElapsedTime subirServosTimer = new ElapsedTime();
     boolean subirServos = false;
 
     @Override
     public void runOpMode() throws InterruptedException {
+
+        ElapsedTime timerColgar = new ElapsedTime();
+
         Hardware hdw = new Hardware();
         hdw.init(hardwareMap);
 
@@ -49,6 +51,9 @@ public class KovaTeleOpCentric extends LinearOpMode {
                 RevHubOrientationOnRobot.LogoFacingDirection.UP,
                 RevHubOrientationOnRobot.UsbFacingDirection.BACKWARD));
         imu.initialize(parameters);
+
+        controllerRight.reset();
+        controllerLeft.reset();
 
         waitForStart();
 
@@ -63,119 +68,130 @@ public class KovaTeleOpCentric extends LinearOpMode {
         hdw.servoWrist.setPosition(0);
 
         while (opModeIsActive()) {
+            if(gamepad1.dpad_right && timerColgar.seconds() > 0.2) {
+                colgada = !colgada;
+                timerColgar.reset();
+            }
+
             if(!colgada) {
                 if (gamepad1.right_trigger > 0.5) {
                     speed = 0.25;
                 } else if (gamepad1.right_trigger < 0.5) {
                     speed = 1;
+
+                    rielesTargetPos += (int) (gamepad2.left_stick_y * 50);
+
+                    if (hdw.touchSensor.isPressed()) {
+                        hdw.centralMotor.setPower(0);
+                    } else {
+                        hdw.centralMotor.setPower(1);
+                        centroTargetPos += (int) (gamepad2.right_stick_y * 25);
+                    }
+
+                    if (gamepad2.b) {
+                        hdw.servoGarra.setPosition(0.2);
+                    } else if (gamepad2.a) {
+                        hdw.servoGarra.setPosition(1);
+                    }
+
+                    if (gamepad2.dpad_up) { // automatizacion movimientos de muñeca
+                        hdw.servoWrist.setPosition(0);
+                    } else if (gamepad2.dpad_right) {
+                        hdw.servoWrist.setPosition(0.35);
+                    } else if (gamepad2.dpad_down) {
+                        hdw.servoWrist.setPosition(0.65);
+                    }
+
+                    if (gamepad2.x) { // automatizacion bajar rieles y guardar garra
+                        hdw.servoWrist.setPosition(0);
+                    } else if (gamepad2.y) {
+                        hdw.servoWrist.setPosition(0.7);
+                    }
+
+                    hdw.servoWrist.setPosition(hdw.servoWrist.getPosition() - ((gamepad2.right_trigger - gamepad2.left_trigger) * 0.05));
+
+
+                    if (hdw.centralMotor.getCurrentPosition() < 260) {
+                        // 333rielesTargetPos = Range.clip(rielesTargetPos, -200, 3900);
+                        telemetry.addLine("extension limitada");
+                    }
+
+                    double rielesError = rielesTargetPos - hdw.slidesMotor.getCurrentPosition();
+                    double rielesProportional = rielesError * rielesP;
+
+                    hdw.slidesMotor.setPower(rielesProportional + rielesF);
+
+                    hdw.centralMotor.setTargetPosition(centroTargetPos);
+
+                    if (rielesPosTimer.milliseconds() > 2000) {
+                        rielesPosTimer.reset();
+                        rielesTargetPos = hdw.slidesMotor.getCurrentPosition();
+                        centroTargetPos = hdw.centralMotor.getCurrentPosition();
+                    }
                 }
-            rielesTargetPos += (int) (gamepad2.left_stick_y * 50);
+            } else  {
 
-            if(hdw.touchSensor.isPressed()){
-                hdw.centralMotor.setPower(0);
-            } else {
-                hdw.centralMotor.setPower(1);
-                centroTargetPos += (int) (gamepad2.right_stick_y * 25);
-            }
+                boolean manualLeft = Math.abs(gamepad2.left_stick_y) > 0.5;
+                boolean manualRight = Math.abs(gamepad2.right_stick_y)  > 0.5;
 
-            if(gamepad2.b) {
-                hdw.servoGarra.setPosition(0.2);
-            } else if(gamepad2.a){
-                hdw.servoGarra.setPosition(1);
-            }
-
-            if(gamepad2.dpad_up) { // automatizacion movimientos de muñeca
-                hdw.servoWrist.setPosition(0);
-            } else if(gamepad2.dpad_right) {
-                hdw.servoWrist.setPosition(0.35);
-            } else if(gamepad2.dpad_down) {
-                hdw.servoWrist.setPosition(0.65);
-            }
-
-            if(gamepad2.x) { // automatizacion bajar rieles y guardar garra
-                hdw.servoWrist.setPosition(0);
-            } else if(gamepad2.y) {
-                hdw.servoWrist.setPosition(0.7);
-            }
-
-            hdw.servoWrist.setPosition(hdw.servoWrist.getPosition() - ((gamepad2.right_trigger - gamepad2.left_trigger) * 0.05));
-
-
-            if (hdw.centralMotor.getCurrentPosition() < 260) {
-                // 333rielesTargetPos = Range.clip(rielesTargetPos, -200, 3900);
-                telemetry.addLine("extension limitada");
-            }
-
-            double rielesError = rielesTargetPos - hdw.slidesMotor.getCurrentPosition();
-            double rielesProportional = rielesError * rielesP;
-
-            hdw.slidesMotor.setPower(rielesProportional + rielesF);
-
-            hdw.centralMotor.setTargetPosition(centroTargetPos);
-
-            if(rielesPosTimer.milliseconds() > 2000) {
-                rielesPosTimer.reset();
-                rielesTargetPos = hdw.slidesMotor.getCurrentPosition();
-                centroTargetPos = hdw.centralMotor.getCurrentPosition();
-            }
-
-            if(colgada) {
-
-                boolean manualUp = Math.abs(gamepad1.right_trigger) > 0.5 ;
-                boolean manualDown = Math.abs(gamepad1.left_trigger) > 0.5 ;
-
-                if (manualUp || manualDown) {
-                    controllerRight.targetPosition = hdw.slidesMotor.getCurrentPosition();
-                    controllerLeft.targetPosition = hdw.slidesMotor.getCurrentPosition();
-
-                    hdw.leftCM.setPower(-gamepad1.right_trigger);
-                    hdw.rightCM.setPower(gamepad1.right_trigger);
-                    hdw.leftCM.setPower(gamepad1.left_trigger);
-                    hdw.rightCM.setPower(-gamepad1.left_trigger);
-                } else {
-                    hdw.leftCM.setPower(controllerLeft.update(hdw.leftCM.getCurrentPosition()));
-                    hdw.rightCM.setPower(controllerRight.update(hdw.rightCM.getCurrentPosition()));
-                }
-
-                if (gamepad1.right_bumper) {
-                    controllerRight.targetPosition = -5700;
-                    controllerLeft.targetPosition = 5700;
+                if (gamepad2.dpad_up) {
 
                     subirServos = true;
                     subirServosTimer.reset();
 
+                        controllerRight.targetPosition = -4500;
+                        controllerLeft.targetPosition = -4500;
 
-                } else if (gamepad1.left_bumper) {
-                    controllerRight.targetPosition = 0;
-                    controllerLeft.targetPosition = 0;
+                } else if (gamepad2.dpad_down) {
+
+                    controllerRight.targetPosition = -4500;
+                    controllerLeft.targetPosition = -4500;
+
+                    hdw.servosDown();
+
+                    subirServos = false;
+
                 }
+
+                if (manualRight) {
+                    hdw.rightCM.setPower(Range.clip(gamepad2.right_stick_y, -0.98, 0.98));
+                    controllerRight.targetPosition = hdw.rightCM.getCurrentPosition();
+                    telemetry.addLine("ManualRight");
+
+                }else {
+                    hdw.rightCM.setPower(controllerRight.update(hdw.rightCM.getCurrentPosition()));
+
+                }
+
+                if (manualLeft) {
+                    hdw.leftCM.setPower(Range.clip(gamepad2.left_stick_y, -0.98, 0.98));
+                    controllerLeft.targetPosition = hdw.leftCM.getCurrentPosition();
+                    telemetry.addLine("ManualLeft");
+
+                }else {
+                    hdw.leftCM.setPower(controllerLeft.update(hdw.leftCM.getCurrentPosition()));
+                }
+
 
                 if (subirServos && subirServosTimer.seconds() > 2) {
                     hdw.servosUp();
                     subirServos = false;
                 }
 
-                if (gamepad1.a){
+                if (gamepad2.a) {
                     hdw.servosDown();
 
-                } else if (gamepad1.y) {
+                } else if (gamepad2.y) {
                     hdw.servosUp();
-
-                }
-
-                }else if (gamepad1.b){
+                } else if (gamepad2.b) {
                     hdw.leftC.getController().pwmDisable();
                     hdw.rightC.getController().pwmDisable();
-                }else if (gamepad1.x){
+                } else if (gamepad2.x) {
                     hdw.leftC.getController().pwmEnable();
                     hdw.rightC.getController().pwmEnable();
                 }
             }
 
-            if(gamepad1.dpad_up && timerColgar.seconds() > 0.2){
-                colgada = !colgada;
-                timerColgar.reset();
-            }
 
 
             telemetry.addData("Colgada", colgada);
