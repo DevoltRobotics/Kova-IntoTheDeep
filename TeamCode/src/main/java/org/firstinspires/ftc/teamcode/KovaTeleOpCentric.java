@@ -12,9 +12,10 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.teamcode.Hardware;
 import org.firstinspires.ftc.teamcode.subsystem.PIDFController;
 
-@TeleOp(name="Kova🎀 Centric", group="Main Teleop")
+@TeleOp(name="kovacolgada", group="Main Teleop")
 public class KovaTeleOpCentric extends LinearOpMode {
 
     public PIDFController.PIDCoefficients climbCoefficients = new PIDFController.PIDCoefficients(0.015, 0, 0.0017);
@@ -33,7 +34,8 @@ public class KovaTeleOpCentric extends LinearOpMode {
 
     ElapsedTime rielesPosTimer = new ElapsedTime();
 
-
+    ElapsedTime bajarServosTimer = new ElapsedTime();
+    boolean bajarServos = false;
     ElapsedTime subirServosTimer = new ElapsedTime();
     boolean subirServos = false;
 
@@ -68,93 +70,87 @@ public class KovaTeleOpCentric extends LinearOpMode {
         hdw.servoWrist.setPosition(0);
 
         while (opModeIsActive()) {
-            if(gamepad1.dpad_right && timerColgar.seconds() > 0.2) {
-                colgada = !colgada;
-                timerColgar.reset();
+            colgada = gamepad1.left_trigger > 0.5;
+
+            if (gamepad1.right_trigger > 0.5) {
+                speed = 0.25;
+            } else if (gamepad1.right_trigger < 0.5) {
+                speed = 1;
+            }
+            rielesTargetPos += (int) (gamepad2.left_stick_y * 50);
+
+            if (hdw.touchSensor.isPressed()) {
+                hdw.centralMotor.setPower(0);
+            } else {
+                hdw.centralMotor.setPower(1);
+                centroTargetPos += (int) (gamepad2.right_stick_y * 25);
             }
 
-            if(!colgada) {
-                if (gamepad1.right_trigger > 0.5) {
-                    speed = 0.25;
-                } else if (gamepad1.right_trigger < 0.5) {
-                    speed = 1;
+            if (gamepad2.b) {
+                hdw.servoGarra.setPosition(0.2);
+            } else if (gamepad2.a) {
+                hdw.servoGarra.setPosition(1);
+            }
 
-                    rielesTargetPos += (int) (gamepad2.left_stick_y * 50);
+            if (gamepad2.dpad_up) { // automatizacion movimientos de muñeca
+                hdw.servoWrist.setPosition(0);
+            } else if (gamepad2.dpad_right) {
+                hdw.servoWrist.setPosition(0.35);
+            } else if (gamepad2.dpad_down) {
+                hdw.servoWrist.setPosition(0.65);
+            }
 
-                    if (hdw.touchSensor.isPressed()) {
-                        hdw.centralMotor.setPower(0);
-                    } else {
-                        hdw.centralMotor.setPower(1);
-                        centroTargetPos += (int) (gamepad2.right_stick_y * 25);
-                    }
+            if (gamepad2.x) { // automatizacion bajar rieles y guardar garra
+                hdw.servoWrist.setPosition(0);
+            } else if (gamepad2.y) {
+                hdw.servoWrist.setPosition(0.7);
+            }
 
-                    if (gamepad2.b) {
-                        hdw.servoGarra.setPosition(0.2);
-                    } else if (gamepad2.a) {
-                        hdw.servoGarra.setPosition(1);
-                    }
-
-                    if (gamepad2.dpad_up) { // automatizacion movimientos de muñeca
-                        hdw.servoWrist.setPosition(0);
-                    } else if (gamepad2.dpad_right) {
-                        hdw.servoWrist.setPosition(0.35);
-                    } else if (gamepad2.dpad_down) {
-                        hdw.servoWrist.setPosition(0.65);
-                    }
-
-                    if (gamepad2.x) { // automatizacion bajar rieles y guardar garra
-                        hdw.servoWrist.setPosition(0);
-                    } else if (gamepad2.y) {
-                        hdw.servoWrist.setPosition(0.7);
-                    }
-
-                    hdw.servoWrist.setPosition(hdw.servoWrist.getPosition() - ((gamepad2.right_trigger - gamepad2.left_trigger) * 0.05));
+            hdw.servoWrist.setPosition(hdw.servoWrist.getPosition() - ((gamepad2.right_trigger - gamepad2.left_trigger) * 0.05));
 
 
-                    if (hdw.centralMotor.getCurrentPosition() < 260) {
-                        // 333rielesTargetPos = Range.clip(rielesTargetPos, -200, 3900);
-                        telemetry.addLine("extension limitada");
-                    }
+            if (hdw.centralMotor.getCurrentPosition() < 260) {
+                // 333rielesTargetPos = Range.clip(rielesTargetPos, -200, 3900);
+                telemetry.addLine("extension limitada");
+            }
 
-                    double rielesError = rielesTargetPos - hdw.slidesMotor.getCurrentPosition();
-                    double rielesProportional = rielesError * rielesP;
+            double rielesError = rielesTargetPos - hdw.slidesMotor.getCurrentPosition();
+            double rielesProportional = rielesError * rielesP;
 
-                    hdw.slidesMotor.setPower(rielesProportional + rielesF);
+            hdw.slidesMotor.setPower(rielesProportional + rielesF);
 
-                    hdw.centralMotor.setTargetPosition(centroTargetPos);
+            hdw.centralMotor.setTargetPosition(centroTargetPos);
 
-                    if (rielesPosTimer.milliseconds() > 2000) {
-                        rielesPosTimer.reset();
-                        rielesTargetPos = hdw.slidesMotor.getCurrentPosition();
-                        centroTargetPos = hdw.centralMotor.getCurrentPosition();
-                    }
-                }
-            } else  {
+            if (rielesPosTimer.milliseconds() > 2000) {
+                rielesPosTimer.reset();
+                rielesTargetPos = hdw.slidesMotor.getCurrentPosition();
+                centroTargetPos = hdw.centralMotor.getCurrentPosition();
+            }
 
-                boolean manualLeft = Math.abs(gamepad2.left_stick_y) > 0.5;
-                boolean manualRight = Math.abs(gamepad2.right_stick_y)  > 0.5;
+            if (colgada) {
 
-                if (gamepad2.dpad_up) {
+                boolean manualLeft = gamepad1.dpad_up || gamepad1.dpad_down;
+                boolean manualRight = gamepad1.a || gamepad1.y;
+
+                if (gamepad1.dpad_right) {
+                    controllerRight.targetPosition = 4000;
+                    controllerLeft.targetPosition = 4000;
 
                     subirServos = true;
                     subirServosTimer.reset();
 
-                        controllerRight.targetPosition = -4500;
-                        controllerLeft.targetPosition = -4500;
-
-                } else if (gamepad2.dpad_down) {
-
-                    controllerRight.targetPosition = -4500;
-                    controllerLeft.targetPosition = -4500;
-
-                    hdw.servosDown();
-
-                    subirServos = false;
-
                 }
 
                 if (manualRight) {
-                    hdw.rightCM.setPower(Range.clip(gamepad2.right_stick_y, -0.98, 0.98));
+
+                    if (gamepad1.a){
+                        hdw.rightCM.setPower(-1);
+
+                    } else if (gamepad1.y) {
+                        hdw.rightCM.setPower(1);
+
+                    }
+
                     controllerRight.targetPosition = hdw.rightCM.getCurrentPosition();
                     telemetry.addLine("ManualRight");
 
@@ -164,7 +160,13 @@ public class KovaTeleOpCentric extends LinearOpMode {
                 }
 
                 if (manualLeft) {
-                    hdw.leftCM.setPower(Range.clip(gamepad2.left_stick_y, -0.98, 0.98));
+                    if (gamepad1.dpad_down){
+                        hdw.leftCM.setPower(-1);
+
+                    } else if (gamepad1.dpad_up) {
+                        hdw.leftCM.setPower(1);
+
+                    }
                     controllerLeft.targetPosition = hdw.leftCM.getCurrentPosition();
                     telemetry.addLine("ManualLeft");
 
@@ -174,25 +176,35 @@ public class KovaTeleOpCentric extends LinearOpMode {
 
 
                 if (subirServos && subirServosTimer.seconds() > 2) {
-                    hdw.servosUp();
+                    hdw.rightC.getController().pwmEnable();
+                    hdw.leftC.getController().pwmEnable();
+                    hdw.rightC.setPosition(0.3);
+                    hdw.leftC.setPosition(0.7);
                     subirServos = false;
                 }
 
-                if (gamepad2.a) {
-                    hdw.servosDown();
-
-                } else if (gamepad2.y) {
-                    hdw.servosUp();
-                } else if (gamepad2.b) {
-                    hdw.leftC.getController().pwmDisable();
-                    hdw.rightC.getController().pwmDisable();
-                } else if (gamepad2.x) {
+                if (gamepad1.x) {
+                    bajarServosTimer.reset();
+                    bajarServos = true;
                     hdw.leftC.getController().pwmEnable();
                     hdw.rightC.getController().pwmEnable();
+                    hdw.rightC.setPosition(0);
+                    hdw.leftC.setPosition(1);
+
+                } else if (gamepad1.b) {
+                    hdw.leftC.getController().pwmEnable();
+                    hdw.rightC.getController().pwmEnable();
+                    hdw.rightC.setPosition(0.3);
+                    hdw.leftC.setPosition(0.7);
+
+                }
+
+                if (bajarServosTimer.seconds() > 0.3 && bajarServos){
+                    hdw.rightC.getController().pwmDisable();
+                    hdw.leftC.getController().pwmDisable();
+                    bajarServos = false;
                 }
             }
-
-
 
             telemetry.addData("Colgada", colgada);
 
@@ -234,5 +246,5 @@ public class KovaTeleOpCentric extends LinearOpMode {
             hdw.backRightMotor.setPower(backRightPower * speed);
         }
     }
-}
 
+}
