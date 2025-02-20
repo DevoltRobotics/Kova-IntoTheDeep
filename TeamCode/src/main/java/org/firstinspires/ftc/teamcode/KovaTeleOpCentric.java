@@ -1,22 +1,21 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
-import com.qualcomm.hardware.rev.RevTouchSensor;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
-import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.teamcode.Hardware;
+import static org.firstinspires.ftc.teamcode.Constants.*;
 import org.firstinspires.ftc.teamcode.subsystem.PIDFController;
 
-@TeleOp(name="kovacolgada", group="Main Teleop")
+@TeleOp(name="TELEOP KOVA", group="Main Teleop")
 public class KovaTeleOpCentric extends LinearOpMode {
+
+
 
     public PIDFController.PIDCoefficients climbCoefficients = new PIDFController.PIDCoefficients(0.015, 0, 0.0017);
 
@@ -39,8 +38,12 @@ public class KovaTeleOpCentric extends LinearOpMode {
     ElapsedTime subirServosTimer = new ElapsedTime();
     boolean subirServos = false;
 
+
     @Override
     public void runOpMode() throws InterruptedException {
+
+        Servo light = hardwareMap.servo.get("light");
+        light.setPosition(0.722);
 
         ElapsedTime timerColgar = new ElapsedTime();
 
@@ -67,13 +70,13 @@ public class KovaTeleOpCentric extends LinearOpMode {
         hdw.centralMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
         hdw.servoWrist.getController().pwmEnable();
-        hdw.servoWrist.setPosition(0);
+        hdw.servoWrist.setPosition(1);
 
         while (opModeIsActive()) {
             colgada = gamepad1.left_trigger > 0.5;
 
             if (gamepad1.right_trigger > 0.5) {
-                speed = 0.25;
+                speed = 0.40;
             } else if (gamepad1.right_trigger < 0.5) {
                 speed = 1;
             }
@@ -87,17 +90,17 @@ public class KovaTeleOpCentric extends LinearOpMode {
             }
 
             if (gamepad2.b) {
-                hdw.servoGarra.setPosition(0.2);
+                hdw.servoGarra.setPosition(CLAWCLOSE);
             } else if (gamepad2.a) {
-                hdw.servoGarra.setPosition(1);
+                hdw.servoGarra.setPosition(CLAWOPEN);
             }
 
             if (gamepad2.dpad_up) { // automatizacion movimientos de muñeca
-                hdw.servoWrist.setPosition(0);
+                hdw.servoWrist.setPosition(WRISTUP);
             } else if (gamepad2.dpad_right) {
-                hdw.servoWrist.setPosition(0.35);
+                hdw.servoWrist.setPosition(WRISTMID);
             } else if (gamepad2.dpad_down) {
-                hdw.servoWrist.setPosition(0.65);
+                hdw.servoWrist.setPosition(WRISTDOWN);
             }
 
             if (gamepad2.x) { // automatizacion bajar rieles y guardar garra
@@ -128,6 +131,7 @@ public class KovaTeleOpCentric extends LinearOpMode {
             }
 
             if (colgada) {
+                light.setPosition(0.722);
 
                 boolean manualLeft = gamepad1.dpad_up || gamepad1.dpad_down;
                 boolean manualRight = gamepad1.a || gamepad1.y;

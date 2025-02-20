@@ -1,5 +1,9 @@
 package org.firstinspires.ftc.teamcode.subsystem;
 
+import static org.firstinspires.ftc.teamcode.Constants.WRISTDOWN;
+import static org.firstinspires.ftc.teamcode.Constants.WRISTMID;
+import static org.firstinspires.ftc.teamcode.Constants.WRISTUP;
+
 import com.arcrobotics.ftclib.command.Command;
 import com.arcrobotics.ftclib.command.CommandBase;
 import com.arcrobotics.ftclib.command.SubsystemBase;
@@ -13,15 +17,15 @@ public class WristSubsystem extends SubsystemBase {
     }
 
     public Command wristUpCmd() {
-        return new WristCmd(0);
+        return new WristCmd(WRISTUP);
     }
 
     public Command wristMidCmd() {
-        return new WristCmd(0.35);
+        return new WristCmd(WRISTMID);
     }
 
     public Command wristDownCmd() {
-        return new WristCmd(0.65);
+        return new WristCmd(WRISTDOWN);
     }
 
     public Command wristPosCmd(double position) {

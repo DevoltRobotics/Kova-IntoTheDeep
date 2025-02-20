@@ -15,17 +15,16 @@ import com.pedropathing.pathgen.Point;
 import com.pedropathing.util.Constants;
 import com.pedropathing.util.Timer;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.subsystem.PedroSubsystem;
 
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
 
-@Disabled
 @Autonomous(group = "###PedroPath")
-public class SpecimenAutoBlueOptimized extends OpMode {
+public class SpecimenAutoRedTest extends OpMode {
 
     Hardware hardware = new Hardware();
     PedroSubsystem pedroSubsystem;
@@ -36,6 +35,8 @@ public class SpecimenAutoBlueOptimized extends OpMode {
 
     private Command pathCommand;
 
+    int offset = 2; //TODO TESTEAR ESTO
+
     private final Pose startPose = new Pose(9, 56, Math.toRadians(0));
 
     private final Pose scorePose = new Pose(35, 69, Math.toRadians(0));
@@ -44,30 +45,29 @@ public class SpecimenAutoBlueOptimized extends OpMode {
     private final Pose scoreTosampleControl1 = new Pose(4,19, Math.toRadians(180));
     private final Pose scoreTosampleControl2 = new Pose(65 ,49, Math.toRadians(180));
 
-    private final Pose sample2 = new Pose(57, 12, Math.toRadians(180));
+    private final Pose sample2 = new Pose(57, 9, Math.toRadians(180));
+    private final Pose humanToSample2Control1 = new Pose(67,32, Math.toRadians(180));
 
-    private final Pose sample3 = new Pose(58, 10, Math.toRadians(90));
+    private final Pose scorePose2 = new Pose(36 , scorePose.getY()-offset, Math.toRadians(0));
 
-    private final Pose sample3Human = new Pose(16, 10, Math.toRadians(90));
+    private final Pose scorePose3 = new Pose(36, scorePose2.getY()-offset, Math.toRadians(0));
+
+    private final Pose scorePose4 = new Pose(36  , scorePose3.getY()-offset, Math.toRadians(0));
+
+    private final Pose humanSample = new Pose(17, 25, Math.toRadians(180));
 
     private final Pose grabSpecimen = new Pose(14.5,22,Math.toRadians(180));
+    private final Pose grabSpecimen2 = new Pose(16,22,Math.toRadians(180));
 
-    private final Pose grabSpecimen2 = new Pose(14.5, 22, Math.toRadians(180));
-    private final Pose grabSpecimen2Control = new Pose(29, 17, Math.toRadians(180));
 
-    private final Pose scorePose2 = new Pose(37 , 60, Math.toRadians(0));
-
-    private final Pose scorePose3 = new Pose(38.5 , 69, Math.toRadians(0));
-
-    private final Pose scorePose4 = new Pose(38.5 , 66, Math.toRadians(0));
+    //TODO PREFERIBLE MODIFICAR SOLO LAS COORDENADAS QUE LOS RIELES
 
     private final Pose park = new Pose(14.5,22,Math.toRadians(180));
-
 
     private final Pose scoreToGrabControl1 = new Pose(35,18,Math.toRadians(180));
 
 
-    private Path sample2ToSample3, score2ToGrabCurve,sample1ToSample2, leaveSample3,humanToGrab,scorePreload, goToSpecimen1, scoreToGrab, scoreToPark, grabToScore2, grabToScore3;
+    private Path score2ToGrabCurve, humanToSample2,scorePreload, goToSpecimen1, leaveSample1, leaveSample2, grabToScore, scoreToGrab, scoreToPark, grabToScore2, grabToScore3;
 
     /** Build the paths for the auto (adds, for example, constant/linear headings while doing paths)
      * It is necessary to do this so that all the paths are built before the auto starts. **/
@@ -79,17 +79,17 @@ public class SpecimenAutoBlueOptimized extends OpMode {
         goToSpecimen1 = new Path(new BezierCurve(new Point (scorePose), new Point(scoreTosampleControl1), new Point(scoreTosampleControl2), new Point(sample1)));
         goToSpecimen1.setLinearHeadingInterpolation(scorePose.getHeading(), sample1.getHeading());
 
-        sample1ToSample2 = new Path(new BezierLine(new Point(sample1), new Point(sample2)));
-        sample1ToSample2.setConstantHeadingInterpolation(sample2.getHeading());
+        leaveSample1 = new Path(new BezierLine(new Point(sample1), new Point(humanSample)));
+        leaveSample1.setConstantHeadingInterpolation(humanSample.getHeading());
 
-        sample2ToSample3 = new Path(new BezierLine(new Point(sample2), new Point(sample3)));
-        sample2ToSample3.setLinearHeadingInterpolation(sample2.getHeading(),sample3.getHeading());
+        humanToSample2 = new Path(new BezierCurve(new Point(humanSample), new Point(humanToSample2Control1), new Point(sample2)));
+        humanToSample2.setConstantHeadingInterpolation(humanSample.getHeading());
 
-        leaveSample3 = new Path(new BezierLine(new Point(sample3), new Point(sample3Human)));
-        leaveSample3.setConstantHeadingInterpolation(sample3.getHeading());
+        leaveSample2 = new Path(new BezierLine(new Point(sample2), new Point(grabSpecimen)));
+        leaveSample2.setConstantHeadingInterpolation(humanSample.getHeading());
 
-        humanToGrab = new Path(new BezierCurve(new Point(sample3Human), new Point(grabSpecimen2Control), new Point(grabSpecimen2)));
-        humanToGrab.setLinearHeadingInterpolation(sample3Human.getHeading(), grabSpecimen2.getHeading());
+        grabToScore = new Path(new BezierLine(new Point(grabSpecimen), new Point(scorePose2)));
+        grabToScore.setLinearHeadingInterpolation(grabSpecimen.getHeading(), scorePose2.getHeading());
 
         score2ToGrabCurve = new Path(new BezierCurve(new Point(scorePose2), new Point(scoreToGrabControl1), new Point(grabSpecimen2)));
         score2ToGrabCurve.setLinearHeadingInterpolation(scorePose2.getHeading(), grabSpecimen.getHeading());
@@ -129,6 +129,8 @@ public class SpecimenAutoBlueOptimized extends OpMode {
                 hardware.clawSubsystem.openCmd(),
                 hardware.wristSubsystem.wristUpCmd(),
 
+                /* EMPUJAR SPECIMENS */
+
                 new ParallelDeadlineGroup(
                         pedroSubsystem.followPathCmd(goToSpecimen1),
 
@@ -136,95 +138,110 @@ public class SpecimenAutoBlueOptimized extends OpMode {
                         hardware.slideSubsystem.slideToPosCmd(0)
                 ),
 
-                //TODO: SISTEMA DE DEJAR PRIMER SAMPLE
-                //Aqui ya lo solto
+                pedroSubsystem.followPathCmd(leaveSample1),
+
+                pedroSubsystem.followPathCmd(humanToSample2),
+                hardware.wristSubsystem.wristMidCmd(),
+                pedroSubsystem.followPathCmd(leaveSample2),
+                hardware.clawSubsystem.closeCmd(),
+                new WaitCommand(450),
+                hardware.wristSubsystem.wristUpCmd(),
 
                 new ParallelDeadlineGroup(
-                        pedroSubsystem.followPathCmd(sample1ToSample2),
+                        pedroSubsystem.followPathCmd(grabToScore),
 
-                        hardware.liftWristSubsystem.liftWristToPosCmd(0),
-                        hardware.slideSubsystem.slideToPosCmd(0),
-                        hardware.wristSubsystem.wristMidCmd()
+                        hardware.liftWristSubsystem.liftWristToPosCmd(2000),
+                        hardware.slideSubsystem.slideToPosCmd(-1450),
+                        hardware.wristSubsystem.wristUpCmd()
                 ),
-                //TODO: SISTEMA DE DEJAR SEGUNDO SAMPLE
 
-                pedroSubsystem.followPathCmd(sample2ToSample3),
-                new WaitCommand(450),
+                new ParallelRaceGroup(
+                        new WaitCommand(800),
+
+                        hardware.wristSubsystem.wristDownCmd(),
+                        hardware.liftWristSubsystem.liftWristToPosCmd(300),
+                        hardware.slideSubsystem.slideToPosCmd(-1800)
+                ),
+
+                new WaitCommand(1100),
+
+                hardware.clawSubsystem.openCmd(),
+                hardware.wristSubsystem.wristUpCmd(),
+
+                new WaitCommand(100),
                 hardware.wristSubsystem.wristMidCmd(),
 
-                pedroSubsystem.followPathCmd(leaveSample3),
+                new ParallelRaceGroup(
+                        pedroSubsystem.followPathCmd(score2ToGrabCurve),
 
-                pedroSubsystem.followPathCmd(humanToGrab)
+                        hardware.liftWristSubsystem.liftWristToPosCmd(0),
+                        hardware.slideSubsystem.slideToPosCmd(0)
+                ),
 
-//                new ParallelRaceGroup(
-//                        hardware.liftWristSubsystem.liftWristToPosCmd(0),
-//                    hardware.slideSubsystem.slideToPosCmd(0)
-//                ),
-//
-//                new ParallelRaceGroup(
-//                        hardware.liftWristSubsystem.liftWristToPosCmd(0),
-//                        hardware.slideSubsystem.slideToPosCmd(0),
-//                        hardware.clawSubsystem.closeCmd()
-//                ),
-//                new WaitCommand(300),
-//                hardware.wristSubsystem.wristUpCmd(),
-//                new ParallelDeadlineGroup(
-//                        pedroSubsystem.followPathCmd(grabToScore2),
-//
-//                        hardware.liftWristSubsystem.liftWristToPosCmd(2000),
-//                        hardware.slideSubsystem.slideToPosCmd(-1450),
-//                        hardware.wristSubsystem.wristUpCmd()
-//                ),
-//                new ParallelRaceGroup(
-//                        new WaitCommand(500),
-//
-//                        hardware.wristSubsystem.wristDownCmd(),
-//                        hardware.liftWristSubsystem.liftWristToPosCmd(300),
-//                        hardware.slideSubsystem.slideToPosCmd(-1800)
-//                ),
-//                new WaitCommand(1100),
-//
-//                hardware.clawSubsystem.openCmd(),
-//                hardware.wristSubsystem.wristUpCmd(),
-//
-//                new WaitCommand(100),
-//                hardware.wristSubsystem.wristMidCmd(),
-//
-//                new ParallelRaceGroup(
-//                        pedroSubsystem.followPathCmd(score2ToGrabCurve),
-//
-//                        hardware.liftWristSubsystem.liftWristToPosCmd(0),
-//                        hardware.slideSubsystem.slideToPosCmd(0)
-//                ),
-//
-//                new ParallelRaceGroup(
-//                        hardware.liftWristSubsystem.liftWristToPosCmd(0),
-//                        hardware.slideSubsystem.slideToPosCmd(0),
-//                        hardware.clawSubsystem.closeCmd()
-//                ),
-//                new WaitCommand(300),
-//                hardware.wristSubsystem.wristUpCmd(),
-//                new ParallelDeadlineGroup(
-//                        pedroSubsystem.followPathCmd(grabToScore3),
-//
-//                        hardware.liftWristSubsystem.liftWristToPosCmd(2000),
-//                        hardware.slideSubsystem.slideToPosCmd(-1450),
-//                        hardware.wristSubsystem.wristUpCmd()
-//                ),
-//                new ParallelRaceGroup(
-//                new WaitCommand(500),
-//
-//                hardware.wristSubsystem.wristDownCmd(),
-//                hardware.liftWristSubsystem.liftWristToPosCmd(300),
-//                hardware.slideSubsystem.slideToPosCmd(-1800)
-//            ),
-//                new WaitCommand(1100),
-//
-//                hardware.clawSubsystem.openCmd(),
-//                hardware.wristSubsystem.wristUpCmd(),
-//
-//                new WaitCommand(100),
-//                hardware.wristSubsystem.wristMidCmd()
+                new ParallelRaceGroup(
+                        hardware.liftWristSubsystem.liftWristToPosCmd(0),
+                        hardware.slideSubsystem.slideToPosCmd(0),
+                        hardware.clawSubsystem.closeCmd()
+                ),
+                new WaitCommand(300),
+                hardware.wristSubsystem.wristUpCmd(),
+                new ParallelDeadlineGroup(
+                        pedroSubsystem.followPathCmd(grabToScore2),
+
+                        hardware.liftWristSubsystem.liftWristToPosCmd(2000),
+                        hardware.slideSubsystem.slideToPosCmd(-1450),
+                        hardware.wristSubsystem.wristUpCmd()
+                ),
+                new ParallelRaceGroup(
+                        new WaitCommand(500),
+
+                        hardware.wristSubsystem.wristDownCmd(),
+                        hardware.liftWristSubsystem.liftWristToPosCmd(300),
+                        hardware.slideSubsystem.slideToPosCmd(-1800)
+                ),
+                new WaitCommand(1100),
+
+                hardware.clawSubsystem.openCmd(),
+                hardware.wristSubsystem.wristUpCmd(),
+
+                new WaitCommand(100),
+                hardware.wristSubsystem.wristMidCmd(),
+
+                new ParallelRaceGroup(
+                        pedroSubsystem.followPathCmd(score2ToGrabCurve),
+
+                        hardware.liftWristSubsystem.liftWristToPosCmd(0),
+                        hardware.slideSubsystem.slideToPosCmd(0)
+                ),
+
+                new ParallelRaceGroup(
+                        hardware.liftWristSubsystem.liftWristToPosCmd(0),
+                        hardware.slideSubsystem.slideToPosCmd(0),
+                        hardware.clawSubsystem.closeCmd()
+                ),
+                new WaitCommand(300),
+                hardware.wristSubsystem.wristUpCmd(),
+                new ParallelDeadlineGroup(
+                        pedroSubsystem.followPathCmd(grabToScore3),
+
+                        hardware.liftWristSubsystem.liftWristToPosCmd(2000),
+                        hardware.slideSubsystem.slideToPosCmd(-1450),
+                        hardware.wristSubsystem.wristUpCmd()
+                ),
+                new ParallelRaceGroup(
+                        new WaitCommand(500),
+
+                        hardware.wristSubsystem.wristDownCmd(),
+                        hardware.liftWristSubsystem.liftWristToPosCmd(300),
+                        hardware.slideSubsystem.slideToPosCmd(-1800)
+                ),
+                new WaitCommand(1100),
+
+                hardware.clawSubsystem.openCmd(),
+                hardware.wristSubsystem.wristUpCmd(),
+
+                new WaitCommand(100),
+                hardware.wristSubsystem.wristMidCmd()
         );
     }
 
@@ -260,6 +277,9 @@ public class SpecimenAutoBlueOptimized extends OpMode {
 
         hardware.clawSubsystem.closeCmd().schedule();
         hardware.wristSubsystem.wristUpCmd().schedule();
+
+        Servo light = hardwareMap.servo.get("light");
+        light.setPosition(0.722);
     }
 
 

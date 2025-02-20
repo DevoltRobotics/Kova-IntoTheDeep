@@ -8,6 +8,8 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import static org.firstinspires.ftc.teamcode.Constants.*;
+
 import org.firstinspires.ftc.teamcode.subsystem.ClawSubsystem;
 import org.firstinspires.ftc.teamcode.subsystem.SlideSubsystem;
 import org.firstinspires.ftc.teamcode.subsystem.LiftWristSubsystem;
@@ -24,6 +26,7 @@ public class Hardware {
 
     public Servo servoGarra;
     public Servo servoWrist;
+    public Servo light;
 
     public Servo leftC;
     public Servo rightC;
@@ -60,6 +63,8 @@ public class Hardware {
         rightC = hardwareMap.servo.get("scr");
         leftCM = hardwareMap.dcMotor.get("cl");
         rightCM = hardwareMap.dcMotor.get("cr");
+
+        light = hardwareMap.servo.get("light");
 
         leftCM.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         leftCM.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);

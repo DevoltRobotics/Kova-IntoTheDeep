@@ -4,6 +4,7 @@ import com.arcrobotics.ftclib.command.Command;
 import com.arcrobotics.ftclib.command.CommandScheduler;
 import com.arcrobotics.ftclib.command.ParallelDeadlineGroup;
 import com.arcrobotics.ftclib.command.SequentialCommandGroup;
+import com.arcrobotics.ftclib.command.WaitCommand;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.localization.Pose;
 import com.pedropathing.pathgen.BezierCurve;
@@ -13,6 +14,7 @@ import com.pedropathing.pathgen.Point;
 import com.pedropathing.util.Constants;
 import com.pedropathing.util.Timer;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.firstinspires.ftc.teamcode.subsystem.PedroSubsystem;
@@ -20,6 +22,7 @@ import org.firstinspires.ftc.teamcode.subsystem.PedroSubsystem;
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
 
+@Disabled
 @Autonomous(group = "###PedroPath")
 public class SampleAutoBlue extends OpMode {
 
@@ -57,11 +60,11 @@ public class SampleAutoBlue extends OpMode {
      * It is necessary to do this so that all the paths are built before the auto starts. **/
     public void buildPaths() {
 
-        scorePreLoad = new Path(new BezierLine(new Point (startPose), new Point(scoreSpecimen)));
-        scorePreLoad.setConstantHeadingInterpolation(startPose.getHeading());
+        scorePreLoad = new Path(new BezierLine(new Point (startPose), new Point(scorePose)));
+        scorePreLoad.setLinearHeadingInterpolation(startPose.getHeading(), scorePose.getHeading());
 
-        sample1Path = new Path(new BezierCurve(new Point(scoreSpecimen), new Point(sample1Control), new Point(sample1)));
-        sample1Path.setConstantHeadingInterpolation(scoreSpecimen.getHeading());
+        sample1Path = new Path(new BezierCurve(new Point(scorePose), new Point(sample1)));
+        sample1Path.setLinearHeadingInterpolation(scoreSpecimen.getHeading(), sample1.getHeading());
 
         scoreSample1 = new Path(new BezierLine(new Point(sample1), new Point(scorePose)));
         scoreSample1.setLinearHeadingInterpolation(sample1.getHeading(), scorePose.getHeading());
@@ -85,13 +88,24 @@ public class SampleAutoBlue extends OpMode {
         pathCommand = new SequentialCommandGroup(
 
             new ParallelDeadlineGroup(
-                pedroSubsystem.followPathCmd(scorePreLoad)
+                pedroSubsystem.followPathCmd(scorePreLoad),
+                    hardware.slideSubsystem.slideToPosCmd(-5000),
+                    hardware.liftWristSubsystem.liftWristToPosCmd(2800)
             ),
-            new ParallelDeadlineGroup(
-                pedroSubsystem.followPathCmd(sample1Path)
-            ),
+                hardware.clawSubsystem.openCmd(),
+                new WaitCommand(1000),
                 new ParallelDeadlineGroup(
-                        pedroSubsystem.followPathCmd(scoreSample1)
+                pedroSubsystem.followPathCmd(sample1Path),
+                    hardware.slideSubsystem.slideToPosCmd(0),
+                    hardware.liftWristSubsystem.liftWristToPosCmd(0),
+                    hardware.wristSubsystem.wristDownCmd()
+            ),
+                hardware.clawSubsystem.closeCmd(),
+                new WaitCommand(400),
+                new ParallelDeadlineGroup(
+                        pedroSubsystem.followPathCmd(scoreSample1),
+                        hardware.slideSubsystem.slideToPosCmd(-5000),
+                        hardware.liftWristSubsystem.liftWristToPosCmd(2800)
                 ),
                 new ParallelDeadlineGroup(
                         pedroSubsystem.followPathCmd(sample2Path)

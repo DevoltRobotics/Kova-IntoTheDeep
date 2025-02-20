@@ -16,6 +16,7 @@ import com.pedropathing.util.Timer;
 import com.pedropathing.util.Constants;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.subsystem.PedroSubsystem;
 
@@ -45,17 +46,19 @@ public class SpecimenAutoBlue extends OpMode {
     private final Pose sample2 = new Pose(57, 9, Math.toRadians(180));
     private final Pose humanToSample2Control1 = new Pose(67,32, Math.toRadians(180));
 
-    private final Pose scorePose2 = new Pose(37 , 60, Math.toRadians(0));
+    private final Pose scorePose2 = new Pose(36 , 60, Math.toRadians(0));
 
-    private final Pose scorePose3 = new Pose(38.5 , 69, Math.toRadians(0));
+    private final Pose scorePose3 = new Pose(36, 69, Math.toRadians(0));
 
-    private final Pose scorePose4 = new Pose(38.5 , 66, Math.toRadians(0));
+    private final Pose scorePose4 = new Pose(36  , 66, Math.toRadians(0));
 
     private final Pose humanSample = new Pose(17, 25, Math.toRadians(180));
 
     private final Pose grabSpecimen = new Pose(14.5,22,Math.toRadians(180));
     private final Pose grabSpecimen2 = new Pose(16,22,Math.toRadians(180));
 
+
+    //TODO----------------------- PREFERIBLE MODIFICAR SOLO LAS COORDENADAS QUE LOS RIELES------------------
 
     private final Pose park = new Pose(14.5,22,Math.toRadians(180));
 
@@ -136,7 +139,7 @@ public class SpecimenAutoBlue extends OpMode {
                 pedroSubsystem.followPathCmd(leaveSample1),
 
                 pedroSubsystem.followPathCmd(humanToSample2),
-                hardware.wristSubsystem.wristPosCmd(0.35), //FIXME Checar Coordenadas para agarrar
+                hardware.wristSubsystem.wristMidCmd(),
                 pedroSubsystem.followPathCmd(leaveSample2),
                 hardware.clawSubsystem.closeCmd(),
                 new WaitCommand(450),
@@ -167,10 +170,10 @@ public class SpecimenAutoBlue extends OpMode {
                 hardware.wristSubsystem.wristMidCmd(),
 
                 new ParallelRaceGroup(
-                    pedroSubsystem.followPathCmd(score2ToGrabCurve),
+                        pedroSubsystem.followPathCmd(score2ToGrabCurve),
 
-                    hardware.liftWristSubsystem.liftWristToPosCmd(0),
-                    hardware.slideSubsystem.slideToPosCmd(0)
+                        hardware.liftWristSubsystem.liftWristToPosCmd(0),
+                        hardware.slideSubsystem.slideToPosCmd(0)
                 ),
 
                 new ParallelRaceGroup(
@@ -224,12 +227,12 @@ public class SpecimenAutoBlue extends OpMode {
                         hardware.wristSubsystem.wristUpCmd()
                 ),
                 new ParallelRaceGroup(
-                new WaitCommand(500),
+                        new WaitCommand(500),
 
-                hardware.wristSubsystem.wristDownCmd(),
-                hardware.liftWristSubsystem.liftWristToPosCmd(300),
-                hardware.slideSubsystem.slideToPosCmd(-1800)
-            ),
+                        hardware.wristSubsystem.wristDownCmd(),
+                        hardware.liftWristSubsystem.liftWristToPosCmd(300),
+                        hardware.slideSubsystem.slideToPosCmd(-1800)
+                ),
                 new WaitCommand(1100),
 
                 hardware.clawSubsystem.openCmd(),
@@ -272,6 +275,9 @@ public class SpecimenAutoBlue extends OpMode {
 
         hardware.clawSubsystem.closeCmd().schedule();
         hardware.wristSubsystem.wristUpCmd().schedule();
+
+        Servo light = hardwareMap.servo.get("light");
+        light.setPosition(0.722);
     }
 
 
