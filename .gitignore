@@ -6,6 +6,8 @@
 
 !libs/*.aar
 
+TeamCode/src/main/java/org/firstinspires/ftc/teamcode/KovaTeleopMonolito.java
+
 # Files for the ART/Dalvik VM
 *.dex
 
