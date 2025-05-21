@@ -27,7 +27,7 @@ import java.util.List;
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
 
-@Disabled
+
 @TeleOp(name = "Motor Directions", group = "Teleop Test")
 public class MotorDirections extends OpMode {
     private Telemetry telemetryA;

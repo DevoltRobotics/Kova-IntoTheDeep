@@ -1,5 +1,8 @@
 package org.firstinspires.ftc.teamcode;
 
+import static org.firstinspires.ftc.teamcode.Constants.CLAWCLOSE;
+import static org.firstinspires.ftc.teamcode.Constants.CLAWOPEN;
+
 import com.arcrobotics.ftclib.command.Command;
 import com.arcrobotics.ftclib.command.CommandScheduler;
 import com.arcrobotics.ftclib.command.ParallelDeadlineGroup;
@@ -46,26 +49,27 @@ public class SpecimenAutoBlue extends OpMode {
     private final Pose sample2 = new Pose(57, 9, Math.toRadians(180));
     private final Pose humanToSample2Control1 = new Pose(67,32, Math.toRadians(180));
 
-    private final Pose scorePose2 = new Pose(36 , 60, Math.toRadians(0));
+    private final Pose scorePose2 = new Pose(35 , 60, Math.toRadians(0));
 
-    private final Pose scorePose3 = new Pose(36, 69, Math.toRadians(0));
+    private final Pose scorePose3 = new Pose(35, 69, Math.toRadians(0));
 
-    private final Pose scorePose4 = new Pose(36  , 66, Math.toRadians(0));
+    private final Pose scorePose4 = new Pose(35, 66, Math.toRadians(0));
 
-    private final Pose humanSample = new Pose(17, 25, Math.toRadians(180));
+    private final Pose humanSample = new Pose(14.5, 25, Math.toRadians(180));
 
-    private final Pose grabSpecimen = new Pose(14.5,22,Math.toRadians(180));
-    private final Pose grabSpecimen2 = new Pose(16,22,Math.toRadians(180));
+    private final Pose grabSpecimen = new Pose(13,22,Math.toRadians(180));
+
+    double clawClose = CLAWOPEN;
+    double clawOpen = CLAWCLOSE;
+    //Por algun motivo jalan al reves del teleop
 
 
     //TODO----------------------- PREFERIBLE MODIFICAR SOLO LAS COORDENADAS QUE LOS RIELES------------------
 
     private final Pose park = new Pose(14.5,22,Math.toRadians(180));
 
-    private final Pose scoreToGrabControl1 = new Pose(35,18,Math.toRadians(180));
 
-
-    private Path score2ToGrabCurve, humanToSample2,scorePreload, goToSpecimen1, leaveSample1, leaveSample2, grabToScore, scoreToGrab, scoreToPark, grabToScore2, grabToScore3;
+    private Path humanToSample2,scorePreload, goToSpecimen1, leaveSample1, leaveSample2, grabToScore, scoreToGrab, scoreToPark, grabToScore2, grabToScore3;
 
     /** Build the paths for the auto (adds, for example, constant/linear headings while doing paths)
      * It is necessary to do this so that all the paths are built before the auto starts. **/
@@ -89,8 +93,6 @@ public class SpecimenAutoBlue extends OpMode {
         grabToScore = new Path(new BezierLine(new Point(grabSpecimen), new Point(scorePose2)));
         grabToScore.setLinearHeadingInterpolation(grabSpecimen.getHeading(), scorePose2.getHeading());
 
-        score2ToGrabCurve = new Path(new BezierCurve(new Point(scorePose2), new Point(scoreToGrabControl1), new Point(grabSpecimen2)));
-        score2ToGrabCurve.setLinearHeadingInterpolation(scorePose2.getHeading(), grabSpecimen.getHeading());
 
         grabToScore2 = new Path(new BezierLine(new Point(grabSpecimen), new Point(scorePose3)));
         grabToScore2.setLinearHeadingInterpolation(grabSpecimen.getHeading(), scorePose3.getHeading());
@@ -119,7 +121,7 @@ public class SpecimenAutoBlue extends OpMode {
                         new WaitCommand(1100),
 
                         hardware.wristSubsystem.wristDownCmd(),
-                        hardware.liftWristSubsystem.liftWristToPosCmd(1000),
+                        hardware.liftWristSubsystem.liftWristToPosCmd(300),
                         hardware.slideSubsystem.slideToPosCmd(-1200)
                 ),
 
@@ -157,8 +159,8 @@ public class SpecimenAutoBlue extends OpMode {
                         new WaitCommand(800),
 
                         hardware.wristSubsystem.wristDownCmd(),
-                        hardware.liftWristSubsystem.liftWristToPosCmd(300),
-                        hardware.slideSubsystem.slideToPosCmd(-1800)
+                        hardware.liftWristSubsystem.liftWristToPosCmd(200),
+                        hardware.slideSubsystem.slideToPosCmd(-1850)
                 ),
 
                 new WaitCommand(1100),
@@ -170,7 +172,7 @@ public class SpecimenAutoBlue extends OpMode {
                 hardware.wristSubsystem.wristMidCmd(),
 
                 new ParallelRaceGroup(
-                        pedroSubsystem.followPathCmd(score2ToGrabCurve),
+                        pedroSubsystem.followPathCmd(scoreToGrab),
 
                         hardware.liftWristSubsystem.liftWristToPosCmd(0),
                         hardware.slideSubsystem.slideToPosCmd(0)
@@ -195,7 +197,7 @@ public class SpecimenAutoBlue extends OpMode {
 
                         hardware.wristSubsystem.wristDownCmd(),
                         hardware.liftWristSubsystem.liftWristToPosCmd(300),
-                        hardware.slideSubsystem.slideToPosCmd(-1800)
+                        hardware.slideSubsystem.slideToPosCmd(-1850)
                 ),
                 new WaitCommand(1100),
 
@@ -206,7 +208,7 @@ public class SpecimenAutoBlue extends OpMode {
                 hardware.wristSubsystem.wristMidCmd(),
 
                 new ParallelRaceGroup(
-                        pedroSubsystem.followPathCmd(score2ToGrabCurve),
+                        pedroSubsystem.followPathCmd(scoreToGrab),
 
                         hardware.liftWristSubsystem.liftWristToPosCmd(0),
                         hardware.slideSubsystem.slideToPosCmd(0)
@@ -273,11 +275,10 @@ public class SpecimenAutoBlue extends OpMode {
 
         buildPaths();
 
-        hardware.clawSubsystem.closeCmd().schedule();
+        hardware.servoGarra.setPosition(clawClose);
         hardware.wristSubsystem.wristUpCmd().schedule();
 
-        Servo light = hardwareMap.servo.get("light");
-        light.setPosition(0.722);
+        hardware.light.setPosition(0.388);
     }
 
 

@@ -20,11 +20,11 @@ public class ClawSubsystem extends SubsystemBase {
     }
 
     public Command openCmd() {
-        return new ClawCmd(CLAWOPEN);
+        return new ClawCmd(CLAWCLOSE);
     }
 
     public Command closeCmd() {
-        return new ClawCmd(CLAWCLOSE);
+        return new ClawCmd(CLAWOPEN);
     }
 
     class ClawCmd extends CommandBase {
@@ -32,8 +32,6 @@ public class ClawSubsystem extends SubsystemBase {
 
         public ClawCmd(double position) {
             this.position = position;
-            if(position == CLAWOPEN) light.setPosition(LIGHTGREEN);
-            if(position == CLAWCLOSE) light.setPosition(LIGHTRED);
             addRequirements(ClawSubsystem.this);
         }
 

@@ -72,10 +72,13 @@ public class Hardware {
         rightCM.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         rightCM.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
+        leftCM.setDirection(DcMotorSimple.Direction.REVERSE);
+
         touchSensor = hardwareMap.get(RevTouchSensor.class,"TS");
 
         slidesMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         centralMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        servoWrist.setDirection(Servo.Direction.REVERSE);
 
         if(!pedro) {
             frontLeftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -108,21 +111,18 @@ public class Hardware {
     }
 
     public void servosUp() {
-        leftC.setPosition(0.3);
-        rightC.setPosition(0.7);
+        leftC.setPosition(0.5 + SERVOSUP);
+        rightC.setPosition(0.5 - SERVOSUP);
     }
 
     public void servosDown() {
         ElapsedTime timer = new ElapsedTime();
-        leftC.setPosition(0.7);
-        rightC.setPosition(0.3);
+        leftC.setPosition(0.5 + SERVOSDOWN);
+        rightC.setPosition(0.5 - SERVOSDOWN);
 
         timer.reset();
         if (timer.seconds() > 0.2) {
             leftC.getController().pwmDisable();
         }
     }
-
-
-
 }

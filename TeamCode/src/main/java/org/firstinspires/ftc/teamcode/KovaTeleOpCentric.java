@@ -45,8 +45,6 @@ public class KovaTeleOpCentric extends LinearOpMode {
         Servo light = hardwareMap.servo.get("light");
         light.setPosition(0.722);
 
-        ElapsedTime timerColgar = new ElapsedTime();
-
         Hardware hdw = new Hardware();
         hdw.init(hardwareMap);
 
@@ -80,6 +78,7 @@ public class KovaTeleOpCentric extends LinearOpMode {
             } else if (gamepad1.right_trigger < 0.5) {
                 speed = 1;
             }
+
             rielesTargetPos += (int) (gamepad2.left_stick_y * 50);
 
             if (hdw.touchSensor.isPressed()) {
@@ -102,12 +101,7 @@ public class KovaTeleOpCentric extends LinearOpMode {
             } else if (gamepad2.dpad_down) {
                 hdw.servoWrist.setPosition(WRISTDOWN);
             }
-
-            if (gamepad2.x) { // automatizacion bajar rieles y guardar garra
-                hdw.servoWrist.setPosition(0);
-            } else if (gamepad2.y) {
-                hdw.servoWrist.setPosition(0.7);
-            }
+            
 
             hdw.servoWrist.setPosition(hdw.servoWrist.getPosition() - ((gamepad2.right_trigger - gamepad2.left_trigger) * 0.05));
 
